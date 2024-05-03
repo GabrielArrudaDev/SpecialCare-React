@@ -3,7 +3,7 @@ import Navbar from "./compoent/Navbar";
 import Pacientes from "./compoent/Pacientes";
 import Alimentos from "./compoent/Alimentos";
 import Medicamentos from "./compoent/Medicamentos";
-import Contact from "./compoent/Usuarios";
+import Usuarios from "./compoent/Usuarios";
 import Funcionarios from "./compoent/Funcionarios";
 import Login from "./compoent/Login";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
@@ -12,7 +12,7 @@ function App() {
   return (
     <Router>
       <Switch>
-        <Route path="/" component={Login} exact />
+        <Route path="/login" component={Login} exact />
         <Route>
           <Navbar />
           <div className="main-content">
@@ -21,6 +21,7 @@ function App() {
               <Route path="/alimentos" component={Alimentos} exact />
               <Route path="/medicamentos" component={Medicamentos} exact />
               <Route path="/funcionarios" component={Funcionarios} exact />
+              <Route path="/Usuarios" component={Usuarios} exact />
             </Switch>
           </div>
         </Route>

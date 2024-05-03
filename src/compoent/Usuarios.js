@@ -1,79 +1,79 @@
 import React, { useState, useEffect } from 'react';
-import './Home.css';
+import './Usuarios.css';
 
 function App() {
-  const [pacientes, setPacientes] = useState([]);
-  const [adicionarPaciente, setAdicionarPaciente] = useState(false);
+  const [usuarios, setUsuarios] = useState([]);
+  const [adicionarUsuario, setAdicionarUsuario] = useState(false);
   const [editandoId, setEditandoId] = useState(null);
-  const [novoPaciente, setNovoPaciente] = useState({ nome: '', idade: '', condicao: '' });
+  const [novoUsuario, setNovoUsuario] = useState({ nome: '', senha: '', funcao: '' });
 
   useEffect(() => {
-    async function fetchPacientes() {
+    async function fetchUsuarios() {
       try {
-        const response = await fetch('http://localhost:8080/api/pacientes');
+        const response = await fetch('http://localhost:8080/api/usuarios');
         const data = await response.json();
-        setPacientes(data);
+        setUsuarios(data);
       } catch (error) {
-        console.error('Erro ao buscar pacientes:', error);
+        console.error('Erro ao buscar usuários:', error);
       }
     }
-    fetchPacientes();
+    fetchUsuarios();
   }, []);
 
-  const handleAdicionarPaciente = () => {
-    setAdicionarPaciente(true);
+  const handleAdicionarUsuario = () => {
+    setAdicionarUsuario(true);
   };
 
-  const handleSalvarPaciente = async () => {
+  const handleSalvarUsuario = async () => {
     try {
-      setAdicionarPaciente(false);
+      setAdicionarUsuario(false);
       if (editandoId !== null) {
-        await fetch(`http://localhost:8080/api/pacientes/${editandoId}`, {
+        await fetch(`http://localhost:8080/api/usuarios/${editandoId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(novoPaciente),
+          body: JSON.stringify(novoUsuario),
         });
-        setPacientes(prevPacientes =>
-          prevPacientes.map(paciente => (paciente.id === editandoId ? novoPaciente : paciente))
+        setUsuarios(prevUsuarios =>
+          prevUsuarios.map(usuario => (usuario.id === editandoId ? novoUsuario : usuario))
         );
         setEditandoId(null);
       } else {
-        const response = await fetch('http://localhost:8080/api/pacientes', {
+        const response = await fetch('http://localhost:8080/api/usuarios', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(novoPaciente),
+          body: JSON.stringify(novoUsuario),
         });
         const data = await response.json();
-        setPacientes(prevPacientes => [...prevPacientes, data]);
+        setUsuarios(prevUsuarios => [...prevUsuarios, data]);
       }
-      setNovoPaciente({ nome: '', idade: '', condicao: '' });
+      setNovoUsuario({ nome: '', senha: '', funcao: '' });
     } catch (error) {
-      console.error('Erro ao salvar paciente:', error);
+      console.error('Erro ao salvar usuário:', error);
     }
   };
 
-  const handleExcluirPaciente = async id => {
+  const handleExcluirUsuario = async id => {
     try {
-      await fetch(`http://localhost:8080/api/pacientes/${id}`, {
+      await fetch(`http://localhost:8080/api/usuarios/${id}`, {
         method: 'DELETE',
       });
-      setPacientes(prevPacientes => prevPacientes.filter(paciente => paciente.id !== id));
+      setUsuarios(prevUsuarios => prevUsuarios.filter(usuario => usuario.id !== id));
     } catch (error) {
-      console.error('Erro ao excluir paciente:', error);
+      console.error('Erro ao excluir usuário:', error);
     }
   };
 
-  const handleEditarPaciente = paciente => {
-    setEditandoId(paciente.id);
-    setNovoPaciente({ ...paciente });
+  const handleEditarUsuario = usuario => {
+    setEditandoId(usuario.id);
+    setNovoUsuario({ ...usuario });
   };
 
   const handleChange = (field, value) => {
-    setNovoPaciente(prevState => ({
+    setNovoUsuario(prevState => ({
       ...prevState,
       [field]: value,
     }));
@@ -81,105 +81,49 @@ function App() {
 
   return (
     <div className="App table-wrapper">
-      <h1>Tabela de Pacientes</h1>
+      <h1>Tabela de Usuários</h1>
       <table>
         <thead>
           <tr>
             <th>Nome</th>
-            <th>Idade</th>
-            <th>Condição</th>
+            <th>Senha</th>
+            <th>Função</th>
             <th>Ações</th>
           </tr>
         </thead>
         <tbody>
-          {pacientes.map(paciente => (
-            <tr key={paciente.id}>
-              <td>
-                {editandoId === paciente.id ? (
-                  <input
-                    type="text"
-                    value={novoPaciente.nome}
-                    onChange={e => handleChange('nome', e.target.value)}
-                  />
-                ) : (
-                  paciente.nome
-                )}
-              </td>
-              <td>
-                {editandoId === paciente.id ? (
-                  <input
-                    type="text"
-                    value={novoPaciente.idade}
-                    onChange={e => handleChange('idade', e.target.value)}
-                  />
-                ) : (
-                  paciente.idade
-                )}
-              </td>
-              <td>
-                {editandoId === paciente.id ? (
-                  <input
-                    type="text"
-                    value={novoPaciente.condicao}
-                    onChange={e => handleChange('condicao', e.target.value)}
-                  />
-                ) : (
-                  paciente.condicao
-                )}
-              </td>
+          {usuarios.map(usuario => (
+            <tr key={usuario.id}>
+              <td>{editandoId === usuario.id ? <input type="text" value={novoUsuario.nome} onChange={e => handleChange('nome', e.target.value)} /> : usuario.nome}</td>
+              <td>{editandoId === usuario.id ? <input type="text" value={novoUsuario.senha} onChange={e => handleChange('senha', e.target.value)} /> : '**********'}</td>
+              <td>{editandoId === usuario.id ? <select value={novoUsuario.funcao} onChange={e => handleChange('funcao', e.target.value)}>
+                <option selected>Escolha a função</option>
+                <option value="admin">Admin</option>
+                <option value="usuario">Usuário</option>
+              </select> : usuario.funcao}</td>
               <td className="acoes">
-                {editandoId === paciente.id ? (
-                  <button className="salvar" onClick={handleSalvarPaciente}>
-                    Salvar
-                  </button>
-                ) : (
-                  <>
-                    <button className="editar" onClick={() => handleEditarPaciente(paciente)}>
-                      Editar
-                    </button>
-                    <button className="excluir" onClick={() => handleExcluirPaciente(paciente.id)}>
-                      Excluir
-                    </button>
-                  </>
-                )}
+                {editandoId === usuario.id ? <button className="salvar" onClick={handleSalvarUsuario}>Salvar</button> : <>
+                  <button className="editar" onClick={() => handleEditarUsuario(usuario)}>Editar</button>
+                  <button className="excluir" onClick={() => handleExcluirUsuario(usuario.id)}>Excluir</button>
+                </>}
               </td>
             </tr>
           ))}
-          {adicionarPaciente && (
+          {adicionarUsuario && (
             <tr>
-              <td>
-                <input
-                  type="text"
-                  value={novoPaciente.nome}
-                  onChange={e => handleChange('nome', e.target.value)}
-                />
-              </td>
-              <td>
-                <input
-                  type="text"
-                  value={novoPaciente.idade}
-                  onChange={e => handleChange('idade', e.target.value)}
-                />
-              </td>
-              <td>
-                <input
-                  type="text"
-                  value={novoPaciente.condicao}
-                  onChange={e => handleChange('condicao', e.target.value)}
-                />
-              </td>
-              <td className="acoes">
-                <button className="salvar" onClick={handleSalvarPaciente}>
-                  Salvar
-                </button>
-              </td>
+              <td><input type="text" value={novoUsuario.nome} onChange={e => handleChange('nome', e.target.value)} /></td>
+              <td><input type="text" value={novoUsuario.senha} onChange={e => handleChange('senha', e.target.value)} /></td>
+              <td><select value={novoUsuario.funcao} onChange={e => handleChange('funcao', e.target.value)}>
+                <option selected>Escolha a função</option>
+                <option value="admin">Admin</option>
+                <option value="usuario">Usuário</option>
+              </select></td>
+              <td className="acoes"><button className="salvar" onClick={handleSalvarUsuario}>Salvar</button></td>
             </tr>
           )}
         </tbody>
       </table>
-      <button className="adicionar" onClick={handleAdicionarPaciente}>
-        Adicionar Paciente
-      </button>
+      <button className="adicionar" onClick={handleAdicionarUsuario}>Adicionar Usuário</button>
     </div>
   );
 }
