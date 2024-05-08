@@ -6,7 +6,8 @@ function App() {
   const [pacientes, setPacientes] = useState([]);
   const [adicionarAlimento, setAdicionarAlimento] = useState(false);
   const [editandoId, setEditandoId] = useState(null);
-  const [novoAlimento, setNovoAlimento] = useState({ nome: '', alimento: '', horario: '', restricoes: '' });
+  const [novoAlimento, setNovoAlimento] = useState({ nome: '', alimento: '', horario: '', observacao: '' });
+  const [termoPesquisa, setTermoPesquisa] = useState('');
 
   useEffect(() => {
     async function fetchAlimentos() {
@@ -64,7 +65,7 @@ function App() {
         const data = await response.json();
         setAlimentos(prevAlimentos => [...prevAlimentos, data]);
       }
-      setNovoAlimento({ nome: '', alimento: '', horario: '', restricoes: '' });
+      setNovoAlimento({ nome: '', alimento: '', horario: '', observacao: '' });
     } catch (error) {
       console.error('Erro ao salvar alimento:', error);
     }
@@ -93,21 +94,35 @@ function App() {
     }));
   };
 
+  const handlePesquisa = e => {
+    setTermoPesquisa(e.target.value);
+  };
+
+  const alimentosFiltrados = alimentos.filter(alimento =>
+    alimento.alimento.toLowerCase().includes(termoPesquisa.toLowerCase())
+  );
+
   return (
     <div className="App table-wrapper">
       <h1>Tabela de Alimentos</h1>
+      <input
+        type="text"
+        placeholder="Pesquisar por nome do alimento..."
+        value={termoPesquisa}
+        onChange={handlePesquisa}
+      />
       <table>
         <thead>
           <tr>
             <th>Nome</th>
             <th>Alimento</th>
             <th>Horário</th>
-            <th>Restrições</th>
+            <th>Observação</th>
             <th>Ações</th>
           </tr>
         </thead>
         <tbody>
-          {alimentos.map(alimento => (
+          {alimentosFiltrados.map(alimento => (
             <tr key={alimento.id}>
               <td>
                 {editandoId === alimento.id ? (
@@ -150,11 +165,11 @@ function App() {
                 {editandoId === alimento.id ? (
                   <input
                     type="text"
-                    value={novoAlimento.restricoes}
-                    onChange={e => handleChange('restricoes', e.target.value)}
+                    value={novoAlimento.observacao}
+                    onChange={e => handleChange('observacao', e.target.value)}
                   />
                 ) : (
-                  alimento.restricoes
+                  alimento.observacao
                 )}
               </td>
               <td className="acoes">
@@ -205,8 +220,8 @@ function App() {
               <td>
                 <input
                   type="text"
-                  value={novoAlimento.restricoes}
-                  onChange={e => handleChange('restricoes', e.target.value)}
+                  value={novoAlimento.observacao}
+                  onChange={e => handleChange('observacao', e.target.value)}
                 />
               </td>
               <td className="acoes">

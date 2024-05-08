@@ -5,7 +5,8 @@ function App() {
   const [pacientes, setPacientes] = useState([]);
   const [adicionarPaciente, setAdicionarPaciente] = useState(false);
   const [editandoId, setEditandoId] = useState(null);
-  const [novoPaciente, setNovoPaciente] = useState({ nome: '', idade: '', condicao: '' });
+  const [novoPaciente, setNovoPaciente] = useState({ nome: '', idade: '', dieta: '', condicao: '', observacao: ''});
+  const [termoPesquisa, setTermoPesquisa] = useState('');
 
   useEffect(() => {
     async function fetchPacientes() {
@@ -33,7 +34,10 @@ function App() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(novoPaciente),
+          body: JSON.stringify({
+            ...novoPaciente,
+            dieta: novoPaciente.dieta.charAt(0).toUpperCase() + novoPaciente.dieta.slice(1) // Capitaliza o valor da dieta
+          }),
         });
         setPacientes(prevPacientes =>
           prevPacientes.map(paciente => (paciente.id === editandoId ? novoPaciente : paciente))
@@ -45,12 +49,15 @@ function App() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(novoPaciente),
+          body: JSON.stringify({
+            ...novoPaciente,
+            dieta: novoPaciente.dieta.charAt(0).toUpperCase() + novoPaciente.dieta.slice(1) // Capitaliza o valor da dieta
+          }),
         });
         const data = await response.json();
         setPacientes(prevPacientes => [...prevPacientes, data]);
       }
-      setNovoPaciente({ nome: '', idade: '', condicao: '' });
+      setNovoPaciente({ nome: '', idade: '', dieta: '', condicao: '', observacao: '' });
     } catch (error) {
       console.error('Erro ao salvar paciente:', error);
     }
@@ -79,20 +86,36 @@ function App() {
     }));
   };
 
+  const handlePesquisa = e => {
+    setTermoPesquisa(e.target.value);
+  };
+
+  const pacientesFiltrados = pacientes.filter(paciente =>
+    paciente.nome.toLowerCase().includes(termoPesquisa.toLowerCase())
+  );
+
   return (
     <div className="App table-wrapper">
       <h1>Tabela de Pacientes</h1>
+      <input
+        type="text"
+        placeholder="Pesquisar por nome do paciente..."
+        value={termoPesquisa}
+        onChange={handlePesquisa}
+      />
       <table>
         <thead>
           <tr>
             <th>Nome</th>
             <th>Idade</th>
+            <th>Dieta</th>
             <th>Condição</th>
+            <th>Observação</th>
             <th>Ações</th>
           </tr>
         </thead>
         <tbody>
-          {pacientes.map(paciente => (
+          {pacientesFiltrados.map(paciente => (
             <tr key={paciente.id}>
               <td>
                 {editandoId === paciente.id ? (
@@ -118,6 +141,23 @@ function App() {
               </td>
               <td>
                 {editandoId === paciente.id ? (
+                  <select
+                    value={novoPaciente.dieta}
+                    onChange={e => handleChange('dieta', e.target.value)}
+                  >
+                    <option value="">Selecione o tipo de dieta</option>
+                    <option value="pastosa">Pastosa</option>
+                    <option value="liquida">Líquida</option>
+                    <option value="normal">Normal</option>
+                    <option value="geral">Geral</option>
+                    <option value="restrita">Restrita</option>
+                  </select>
+                ) : (
+                  paciente.dieta
+                )}
+              </td>
+              <td>
+                {editandoId === paciente.id ? (
                   <input
                     type="text"
                     value={novoPaciente.condicao}
@@ -125,6 +165,17 @@ function App() {
                   />
                 ) : (
                   paciente.condicao
+                )}
+              </td>
+              <td>
+                {editandoId === paciente.id ? (
+                  <input
+                    type="text"
+                    value={novoPaciente.observacao}
+                    onChange={e => handleChange('observacao', e.target.value)}
+                  />
+                ) : (
+                  paciente.observacao
                 )}
               </td>
               <td className="acoes">
@@ -162,10 +213,30 @@ function App() {
                 />
               </td>
               <td>
+                <select
+                  value={novoPaciente.dieta}
+                  onChange={e => handleChange('dieta', e.target.value)}
+                >
+                  <option value="">Selecione o tipo de dieta</option>
+                  <option value="pastosa">Pastosa</option>
+                  <option value="liquida">Líquida</option>
+                  <option value="normal">Normal</option>
+                  <option value="geral">Geral</option>
+                  <option value="restrita">Restrita</option>
+                </select>
+              </td>
+              <td>
                 <input
                   type="text"
                   value={novoPaciente.condicao}
                   onChange={e => handleChange('condicao', e.target.value)}
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  value={novoPaciente.observacao}
+                  onChange={e => handleChange('observacao', e.target.value)}
                 />
               </td>
               <td className="acoes">

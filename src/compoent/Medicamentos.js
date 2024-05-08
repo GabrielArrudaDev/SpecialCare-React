@@ -6,7 +6,8 @@ function App() {
   const [pacientes, setPacientes] = useState([]);
   const [adicionarMedicamento, setAdicionarMedicamento] = useState(false);
   const [editandoId, setEditandoId] = useState(null);
-  const [novoMedicamento, setNovoMedicamento] = useState({ nome: '', tipo: '', dosagem: '', horario: '' });
+  const [novoMedicamento, setNovoMedicamento] = useState({ nome: '', tipo: '', medicamento:'',dosagem: '', horario: '', observacao: '' });
+  const [termoPesquisa, setTermoPesquisa] = useState('');
 
   useEffect(() => {
     async function fetchMedicamentos() {
@@ -64,7 +65,7 @@ function App() {
         const data = await response.json();
         setMedicamentos(prevMedicamentos => [...prevMedicamentos, data]);
       }
-      setNovoMedicamento({ nome: '', tipo: '', dosagem: '', horario: '' });
+      setNovoMedicamento({ nome: '', tipo: '', medicamento:'',dosagem: '', horario: '', observacao: '' });
     } catch (error) {
       console.error('Erro ao salvar medicamento:', error);
     }
@@ -93,9 +94,23 @@ function App() {
     }));
   };
 
+  const handlePesquisa = e => {
+    setTermoPesquisa(e.target.value);
+  };
+
+  const medicamentosFiltrados = medicamentos.filter(medicamento =>
+    medicamento.nome.toLowerCase().includes(termoPesquisa.toLowerCase())
+  );
+
   return (
     <div className="App table-wrapper">
       <h1>Tabela de Medicamentos</h1>
+      <input
+        type="text"
+        placeholder="Pesquisar por nome do paciente..."
+        value={termoPesquisa}
+        onChange={handlePesquisa}
+      />
       <table>
         <thead>
           <tr>
@@ -104,11 +119,12 @@ function App() {
             <th>Tipo</th>
             <th>Dosagem</th>
             <th>Horário</th>
+            <th>Observação</th>
             <th>Ações</th>
           </tr>
         </thead>
         <tbody>
-          {medicamentos.map(medicamento => (
+          {medicamentosFiltrados.map(medicamento => (
             <tr key={medicamento.id}>
               <td>
                 {editandoId === medicamento.id ? (
@@ -169,6 +185,17 @@ function App() {
                   medicamento.horario
                 )}
               </td>
+              <td>
+                {editandoId === medicamento.id ? (
+                  <input
+                    type="text"
+                    value={novoMedicamento.observacao}
+                    onChange={e => handleChange('observacao', e.target.value)}
+                  />
+                ) : (
+                  medicamento.observacao
+                )}
+              </td>
               <td className="acoes">
                 {editandoId === medicamento.id ? (
                   <button className="salvar" onClick={handleSalvarMedicamento}>
@@ -226,6 +253,13 @@ function App() {
                   type="text"
                   value={novoMedicamento.horario}
                   onChange={e => handleChange('horario', e.target.value)}
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  value={novoMedicamento.observacao}
+                  onChange={e => handleChange('observacao', e.target.value)}
                 />
               </td>
               <td className="acoes">
