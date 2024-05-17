@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './Home.css';
+import './Navbar.css';
+import { Link } from "react-router-dom";
+import { FaBars } from "react-icons/fa";
+import { ImCross } from "react-icons/im";
 
 function App() {
   const [medicamentos, setMedicamentos] = useState([]);
@@ -8,6 +12,8 @@ function App() {
   const [editandoId, setEditandoId] = useState(null);
   const [novoMedicamento, setNovoMedicamento] = useState({ nome: '', tipo: '', medicamento:'',dosagem: '', horario: '', observacao: '' });
   const [termoPesquisa, setTermoPesquisa] = useState('');
+  const [mobile, setMobile] = useState(false);
+
 
   useEffect(() => {
     async function fetchMedicamentos() {
@@ -103,6 +109,30 @@ function App() {
   );
 
   return (
+    <>
+      <nav className='navbar'>
+        <h3 className='logo'>SpecialCare</h3>
+        <ul className={mobile ? "nav-links-mobile" : "nav-links"} onClick={() => setMobile(false)}>
+          <Link to='/pacientes' className='pacientes'>
+            <li>Pacientes</li>
+          </Link>
+          <Link to='/alimentos' className='alimentos'>
+            <li>Alimentos</li>
+          </Link>
+          <Link to='/medicamentos' className='medicamentos'>
+            <li>Medicamentos</li>
+          </Link>
+          <Link to='/funcionarios' className='funcionarios'>
+            <li>Funcionarios</li>
+          </Link>
+          <Link to='/usuarios' className='usuarios'>
+            <li>Usuarios</li>
+          </Link>
+        </ul>
+        <button className='mobile-menu-icon' onClick={() => setMobile(!mobile)}>
+          {mobile ? <ImCross /> : <FaBars />}
+        </button>
+      </nav>
     <div className="App table-wrapper">
       <h1>Tabela de Medicamentos</h1>
       <input
@@ -275,6 +305,7 @@ function App() {
         Adicionar Medicamento
       </button>
     </div>
+    </>
   );
 }
 

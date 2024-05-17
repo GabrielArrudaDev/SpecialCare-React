@@ -1,12 +1,11 @@
 import React from "react";
-import Navbar from "./compoent/Navbar";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Pacientes from "./compoent/Pacientes";
 import Alimentos from "./compoent/Alimentos";
 import Medicamentos from "./compoent/Medicamentos";
 import Usuarios from "./compoent/Usuarios";
 import Funcionarios from "./compoent/Funcionarios";
 import Login from "./compoent/Login";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 function App() {
   return (
@@ -14,16 +13,21 @@ function App() {
       <Switch>
         <Route path="/" component={Login} exact />
         <Route>
-          <Navbar />
-          <div className="main-content">
-            <Switch>
-              <Route path="/pacientes" component={Pacientes} exact />
-              <Route path="/alimentos" component={Alimentos} exact />
-              <Route path="/medicamentos" component={Medicamentos} exact />
-              <Route path="/funcionarios" component={Funcionarios} exact />
-              <Route path="/Usuarios" component={Usuarios} exact />
-            </Switch>
-          </div>
+          <Route path="/pacientes" exact>
+            <Pacientes />
+          </Route>
+          <Route path="/alimentos" exact>
+            <Alimentos />
+          </Route>
+          <Route path="/medicamentos" exact>
+            <Medicamentos />
+          </Route>
+          <Route path="/funcionarios" exact>
+            <Funcionarios />
+          </Route>
+          <Route path="/usuarios" exact>
+            <Usuarios />
+          </Route>
         </Route>
       </Switch>
     </Router>
