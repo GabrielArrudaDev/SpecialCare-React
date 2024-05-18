@@ -10,34 +10,35 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+  
     try {
-      if (nomeUsuario === 'admin' && senha === 'admin') {
+      // Verificar no banco de dados
+      const response = await fetch('http://localhost:8080/api/usuarios');
+      const usuarios = await response.json();
+      
+      // Converter o nome de usuário para minúsculas
+      const nomeUsuarioLowerCase = nomeUsuario.toLowerCase();
+  
+      // Procurar o usuário no array de usuários convertendo também o nome do banco para minúsculas
+      const usuario = usuarios.find(u => u.nome.toLowerCase() === nomeUsuarioLowerCase && u.senha === senha);
+      
+      if (usuario) {
         // Login bem-sucedido
         console.log('Login bem-sucedido:', nomeUsuario);
+        localStorage.setItem('funcaoUsuario', usuario.funcao.toLowerCase());
         history.push('/pacientes'); // Redireciona para a próxima página
       } else {
-        // Verificar no banco de dados
-        const response = await fetch('http://localhost:8080/api/usuarios');
-        const usuarios = await response.json();
-        const usuario = usuarios.find(u => u.nome === nomeUsuario && u.senha === senha);
-        
-        if (usuario) {
-          // Login bem-sucedido
-          console.log('Login bem-sucedido:', nomeUsuario);
-          history.push('/pacientes'); // Redireciona para a próxima página
-        } else {
-          setMensagemErro('Nome de usuário ou senha incorretos');
-          setTimeout(() => {
-            setMensagemErro('');
-          }, 3000); // 3 segundos
-        }
+        setMensagemErro('Nome de usuário ou senha incorretos');
+        setTimeout(() => {
+          setMensagemErro('');
+        }, 3000); // 3 segundos
       }
     } catch (error) {
       console.error('Erro ao fazer login:', error);
       setMensagemErro('Erro ao fazer login. Por favor, tente novamente mais tarde.');
     }
   };
+  
 
   return (
     <div className="container">

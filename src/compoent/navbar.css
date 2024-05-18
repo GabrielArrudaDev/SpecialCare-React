@@ -104,3 +104,13 @@ button {
     font-size: 50px;
   }
 }
+/* Navbar.css */
+.hidden {
+  display: none;
+}
+
+.logout{
+  text-decoration: none;
+  background-color: aliceblue;
+  border-radius: 10px;
+}

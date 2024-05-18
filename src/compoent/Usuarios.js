@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Usuarios.css';
 import './Navbar.css';
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 
@@ -11,6 +11,20 @@ function App() {
   const [editandoId, setEditandoId] = useState(null);
   const [novoUsuario, setNovoUsuario] = useState({ nome: '', senha: '', funcao: '' });
   const [mobile, setMobile] = useState(false);
+  const [funcaoUsuario, setFuncaoUsuario] = useState('');
+  const history = useHistory();
+
+  useEffect(() => {
+const funcao = localStorage.getItem('funcaoUsuario');
+console.log('Função do usuário:', funcao); // Adicione este log
+if (funcao) {
+  setFuncaoUsuario(funcao.toLowerCase());
+} else {
+  console.error('Função do usuário não encontrada no localStorage');
+}
+
+
+  }, []);
 
   useEffect(() => {
     async function fetchUsuarios() {
@@ -31,7 +45,7 @@ function App() {
 
   const handleSalvarUsuario = async () => {
     try {
-      setAdicionarUsuario(false);
+      let data;
       if (editandoId !== null) {
         await fetch(`http://localhost:8080/api/usuarios/${editandoId}`, {
           method: 'PUT',
@@ -52,7 +66,9 @@ function App() {
           },
           body: JSON.stringify(novoUsuario),
         });
-        const data = await response.json();
+        console.log('Response:', response); // Adicione esta linha
+        data = await response.json();
+        console.log('Data:', data); // Adicione esta linha
         setUsuarios(prevUsuarios => [...prevUsuarios, data]);
       }
       setNovoUsuario({ nome: '', senha: '', funcao: '' });
@@ -60,6 +76,7 @@ function App() {
       console.error('Erro ao salvar usuário:', error);
     }
   };
+  
 
   const handleExcluirUsuario = async id => {
     try {
@@ -84,6 +101,15 @@ function App() {
     }));
   };
 
+ 
+
+  
+  const handleLogout = () => {
+    // Limpa o localStorage e redireciona para a tela de login
+    localStorage.clear();
+    history.push('/login');
+  };
+
   return (
     <>
       <nav className='navbar'>
@@ -101,59 +127,64 @@ function App() {
           <Link to='/funcionarios' className='funcionarios'>
             <li>Funcionarios</li>
           </Link>
-          <Link to='/usuarios' className='usuarios'>
+          {/* Aplicar classe hidden ao link de usuários se a função for 'usuario' */}
+          <Link to='/usuarios' className={`usuarios ${funcaoUsuario === 'usuario' ? 'hidden' : ''}`}>
             <li>Usuarios</li>
           </Link>
+          <li onClick={handleLogout} className='logout'>Logout</li> {/* Adiciona um botão de logout */}
         </ul>
         <button className='mobile-menu-icon' onClick={() => setMobile(!mobile)}>
           {mobile ? <ImCross /> : <FaBars />}
         </button>
       </nav>
-    <div className="App table-wrapper">
-      <h1>Tabela de Usuários</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Senha</th>
-            <th>Função</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {usuarios.map(usuario => (
-            <tr key={usuario.id}>
-              <td>{editandoId === usuario.id ? <input type="text" value={novoUsuario.nome} onChange={e => handleChange('nome', e.target.value)} /> : usuario.nome}</td>
-              <td>{editandoId === usuario.id ? <input type="text" value={novoUsuario.senha} onChange={e => handleChange('senha', e.target.value)} /> : '**********'}</td>
-              <td>{editandoId === usuario.id ? <select value={novoUsuario.funcao} onChange={e => handleChange('funcao', e.target.value)}>
-                <option selected>Escolha a função</option>
-                <option value="admin">Admin</option>
-                <option value="usuario">Usuário</option>
-              </select> : usuario.funcao}</td>
-              <td className="acoes">
-                {editandoId === usuario.id ? <button className="salvar" onClick={handleSalvarUsuario}>Salvar</button> : <>
-                  <button className="editar" onClick={() => handleEditarUsuario(usuario)}>Editar</button>
-                  <button className="excluir" onClick={() => handleExcluirUsuario(usuario.id)}>Excluir</button>
-                </>}
-              </td>
-            </tr>
-          ))}
-          {adicionarUsuario && (
+      <div className="App table-wrapper">
+        <h1>Tabela de Usuários</h1>
+        <table>
+          <thead>
             <tr>
-              <td><input type="text" value={novoUsuario.nome} onChange={e => handleChange('nome', e.target.value)} /></td>
-              <td><input type="text" value={novoUsuario.senha} onChange={e => handleChange('senha', e.target.value)} /></td>
-              <td><select value={novoUsuario.funcao} onChange={e => handleChange('funcao', e.target.value)}>
-                <option selected>Escolha a função</option>
-                <option value="admin">Admin</option>
-                <option value="usuario">Usuário</option>
-              </select></td>
-              <td className="acoes"><button className="salvar" onClick={handleSalvarUsuario}>Salvar</button></td>
+              <th>Nome</th>
+              <th>Senha</th>
+              <th>Função</th>
+              <th className={` ${funcaoUsuario === 'usuario' ? 'hidden' : ''}`} >Ações</th>
             </tr>
-          )}
-        </tbody>
-      </table>
-      <button className="adicionar" onClick={handleAdicionarUsuario}>Adicionar Usuário</button>
-    </div>
+          </thead>
+          <tbody>
+          {usuarios.map(usuario => (
+  <tr key={usuario.id}>
+    <td>{editandoId === usuario.id ? <input type="text" value={novoUsuario.nome} onChange={e => handleChange('nome', e.target.value)} /> : usuario.nome}</td>
+    <td>{editandoId === usuario.id ? <input type="text" value={novoUsuario.senha} onChange={e => handleChange('senha', e.target.value)} /> : '**********'}</td>
+    <td>{editandoId === usuario.id ? <select value={novoUsuario.funcao} onChange={e => handleChange('funcao', e.target.value)}>
+      <option>Escolha a função</option>
+      <option value="Admin">Admin</option>
+      <option value="Usuario">Usuário</option>
+    </select> : usuario.funcao}</td>
+    <td className={`acoes ${funcaoUsuario === 'usuario' ? 'hidden' : ''}`}>
+      {editandoId === usuario.id ? <button className="salvar" onClick={handleSalvarUsuario}>Salvar</button> : <>
+        <button className="editar" onClick={() => handleEditarUsuario(usuario)}>Editar</button>
+        <button className="excluir" onClick={() => handleExcluirUsuario(usuario.id)}>Excluir</button>
+      </>}
+    </td>
+  </tr>
+))}
+
+            {adicionarUsuario && (
+              <tr>
+                <td><input type="text" value={novoUsuario.nome} onChange={e => handleChange('nome', e.target.value)} /></td>
+                <td><input type="text" value={novoUsuario.senha} onChange={e => handleChange('senha', e.target.value)} /></td>
+                <td>
+                  <select value={novoUsuario.funcao} onChange={e => handleChange('funcao', e.target.value)}>
+                    <option>Escolha a função</option>
+                    <option value="admin">Admin</option>
+                    <option value="usuario">Usuário</option>
+                  </select>
+                </td>
+                <td className="acoes"><button className="salvar" onClick={handleSalvarUsuario}>Salvar</button></td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+        <button className="adicionar" onClick={handleAdicionarUsuario}>Adicionar Usuário</button>
+      </div>
     </>
   );
 }

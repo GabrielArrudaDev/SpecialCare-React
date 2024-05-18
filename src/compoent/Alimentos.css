@@ -91,3 +91,7 @@ input[type="text"]:focus {
 .adicionar:hover {
   background-color: #45a049; /* Verde um pouco mais escuro */
 }
+
+.hidden {
+  display: none;
+}

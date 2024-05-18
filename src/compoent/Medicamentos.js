@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Home.css';
 import './Navbar.css';
-import { Link } from "react-router-dom";
+import { Link, useHistory} from "react-router-dom";
 import { FaBars } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 
@@ -13,7 +13,15 @@ function App() {
   const [novoMedicamento, setNovoMedicamento] = useState({ nome: '', tipo: '', medicamento:'',dosagem: '', horario: '', observacao: '' });
   const [termoPesquisa, setTermoPesquisa] = useState('');
   const [mobile, setMobile] = useState(false);
+  const [funcaoUsuario, setFuncaoUsuario] = useState('');
+  const history = useHistory();
 
+  
+  useEffect(() => {
+    // Recupera a função do usuário do localStorage e a converte para minúsculas
+    const funcao = localStorage.getItem('funcaoUsuario')?.toLowerCase();
+    setFuncaoUsuario(funcao);
+  }, []);
 
   useEffect(() => {
     async function fetchMedicamentos() {
@@ -107,6 +115,11 @@ function App() {
   const medicamentosFiltrados = medicamentos.filter(medicamento =>
     medicamento.nome.toLowerCase().includes(termoPesquisa.toLowerCase())
   );
+  const handleLogout = () => {
+    // Limpa o localStorage e redireciona para a tela de login
+    localStorage.clear();
+    history.push('/login');
+  };
 
   return (
     <>
@@ -125,9 +138,10 @@ function App() {
           <Link to='/funcionarios' className='funcionarios'>
             <li>Funcionarios</li>
           </Link>
-          <Link to='/usuarios' className='usuarios'>
+          <Link to='/usuarios' className={`usuarios ${funcaoUsuario === 'usuario' ? 'hidden' : ''}`}>
             <li>Usuarios</li>
           </Link>
+          <li onClick={handleLogout} className='logout'>Logout</li> {/* Adiciona um botão de logout */}
         </ul>
         <button className='mobile-menu-icon' onClick={() => setMobile(!mobile)}>
           {mobile ? <ImCross /> : <FaBars />}
@@ -150,7 +164,7 @@ function App() {
             <th>Dosagem</th>
             <th>Horário</th>
             <th>Observação</th>
-            <th>Ações</th>
+            <th className={` ${funcaoUsuario === 'usuario' ? 'hidden' : ''}`}>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -226,7 +240,7 @@ function App() {
                   medicamento.observacao
                 )}
               </td>
-              <td className="acoes">
+              <td className={`acoes ${funcaoUsuario === 'usuario' ? 'hidden' : ''}`}>
                 {editandoId === medicamento.id ? (
                   <button className="salvar" onClick={handleSalvarMedicamento}>
                     Salvar
