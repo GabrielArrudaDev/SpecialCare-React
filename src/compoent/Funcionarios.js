@@ -121,7 +121,10 @@ function Funcionario() {
           <Link to='/medicamentos' className='medicamentos'>
             <li>Medicamentos</li>
           </Link>
-          <Link to='/funcionarios' className={`funcionarios ${funcaoUsuario === 'familiar' ? 'hidden' : ''}`}>
+          <Link to='/diario' >
+            <li>Diário</li>
+          </Link>
+          <Link to='/funcionarios' lassName={`funcionarios ${(funcaoUsuario === 'medico' || funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
             <li>Funcionarios</li>
           </Link>
           <Link to='/usuarios' className={`usuarios ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
@@ -185,7 +188,6 @@ function Funcionario() {
                     <option value="">Selecione a Função</option>
                     <option value="Medico">Médico</option>
                     <option value="Enfermeiro">Enfermeiro</option>
-                    <option value="Nutricionista">Nutricionista</option>
                     <option value="Familia">Familia</option>
                   </select>
                 ) : (
@@ -234,7 +236,6 @@ function Funcionario() {
                   <option value="">Selecione a Função</option>
                   <option value="Medico">Médico</option>
                   <option value="Enfermeiro">Enfermeiro</option>
-                  <option value="Nutricionista">Nutricionista</option>
                   <option value="Familia">Familia</option>
                 </select>
               </td>

@@ -4,6 +4,8 @@ import './Navbar.css';
 import { Link, useHistory } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 function App() {
   const [pacientes, setPacientes] = useState([]);
@@ -15,7 +17,7 @@ function App() {
   const [funcaoUsuario, setFuncaoUsuario] = useState('');
   const history = useHistory();
 
-  
+
   useEffect(() => {
     // Recupera a função do usuário do localStorage e a converte para minúsculas
     const funcao = localStorage.getItem('funcaoUsuario')?.toLowerCase();
@@ -113,9 +115,19 @@ function App() {
     history.push('/login');
   };
 
-  // function pacientePDF() {
-    
-  // }
+  const gerarPDF = () => {
+    const doc = new jsPDF();
+    const columnHeaders = ['Nome', 'Idade', 'Dieta', 'Condição', 'Observação'];
+    const rows = pacientesFiltrados.map(paciente => [paciente.nome, paciente.idade, paciente.dieta, paciente.condicao, paciente.observacao]);
+
+    doc.autoTable({
+      head: [columnHeaders],
+      body: rows,
+    });
+
+    doc.save('pacientes.pdf');
+  };
+
   return (
     <>
       <nav className='navbar'>
@@ -130,10 +142,13 @@ function App() {
           <Link to='/medicamentos' className='medicamentos'>
             <li>Medicamentos</li>
           </Link>
-          <Link to='/funcionarios' className={`funcionarios ${funcaoUsuario === 'familiar' ? 'hidden' : ''}`}>
+          <Link to='/diario' >
+            <li>Diario</li>
+          </Link>
+          <Link to='/funcionarios' className={`funcionarios ${(funcaoUsuario === 'medico' || funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
             <li>Funcionarios</li>
           </Link>
-          <Link to='/usuarios' className={`usuarios ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
+          <Link to='/usuarios' className={`usuarios ${(funcaoUsuario === 'medico' || funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
             <li>Usuarios</li>
           </Link>
           <li onClick={handleLogout} className='logout'>Logout</li> {/* Adiciona um botão de logout */}
@@ -253,7 +268,7 @@ function App() {
               <tr>
                 <td>
                   <input
-                  className='campoTabela'
+                    className='campoTabela'
                     type="text"
                     value={novoPaciente.nome}
                     onChange={e => handleChange('nome', e.target.value)}
@@ -261,7 +276,7 @@ function App() {
                 </td>
                 <td>
                   <input
-                  className='campoTabela'
+                    className='campoTabela'
                     type="text"
                     value={novoPaciente.idade}
                     onChange={e => handleChange('idade', e.target.value)}
@@ -269,7 +284,7 @@ function App() {
                 </td>
                 <td>
                   <select
-                  className='campoTabela'
+                    className='campoTabela'
                     value={novoPaciente.dieta}
                     onChange={e => handleChange('dieta', e.target.value)}
                   >
@@ -283,7 +298,7 @@ function App() {
                 </td>
                 <td>
                   <input
-                  className='campoTabela'
+                    className='campoTabela'
                     type="text"
                     value={novoPaciente.condicao}
                     onChange={e => handleChange('condicao', e.target.value)}
@@ -291,7 +306,7 @@ function App() {
                 </td>
                 <td>
                   <input
-                  className='campoTabela'
+                    className='campoTabela'
                     type="text"
                     value={novoPaciente.observacao}
                     onChange={e => handleChange('observacao', e.target.value)}
@@ -306,12 +321,17 @@ function App() {
             )}
           </tbody>
         </table>
-        <button className={`adicionar ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`} onClick={handleAdicionarPaciente}>
-          Adicionar Paciente
-        </button>
-        <button className="pdf">
-          Gerar PDF
-        </button>
+        <div className="botoes">
+          {funcaoUsuario !== 'enfermeiro' && funcaoUsuario !== 'familiar' && (
+            <button className="adicionar" onClick={handleAdicionarPaciente}>
+              Adicionar Paciente
+            </button>
+          )}
+          <button className="pdf" onClick={gerarPDF}>
+            Gerar PDF
+          </button>
+        </div>
+
       </div>
     </>
   );

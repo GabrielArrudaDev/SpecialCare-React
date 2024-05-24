@@ -15,13 +15,13 @@ function App() {
   const history = useHistory();
 
   useEffect(() => {
-const funcao = localStorage.getItem('funcaoUsuario');
-console.log('Função do usuário:', funcao); // Adicione este log
-if (funcao) {
-  setFuncaoUsuario(funcao.toLowerCase());
-} else {
-  console.error('Função do usuário não encontrada no localStorage');
-}
+    const funcao = localStorage.getItem('funcaoUsuario');
+    console.log('Função do usuário:', funcao); // Adicione este log
+    if (funcao) {
+      setFuncaoUsuario(funcao.toLowerCase());
+    } else {
+      console.error('Função do usuário não encontrada no localStorage');
+    }
 
 
   }, []);
@@ -76,7 +76,7 @@ if (funcao) {
       console.error('Erro ao salvar usuário:', error);
     }
   };
-  
+
 
   const handleExcluirUsuario = async id => {
     try {
@@ -101,9 +101,9 @@ if (funcao) {
     }));
   };
 
- 
 
-  
+
+
   const handleLogout = () => {
     // Limpa o localStorage e redireciona para a tela de login
     localStorage.clear();
@@ -124,7 +124,10 @@ if (funcao) {
           <Link to='/medicamentos' className='medicamentos'>
             <li>Medicamentos</li>
           </Link>
-          <Link to='/funcionarios' className={`funcionarios ${funcaoUsuario === 'familiar' ? 'hidden' : ''}`}>
+          <Link to='/diario' className={`diario ${funcaoUsuario === 'familiar' ? 'hidden' : ''}`}>
+            <li>Diario</li>
+          </Link>
+          <Link to='/funcionarios' lassName={`funcionarios ${(funcaoUsuario === 'medico' || funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
             <li>Funcionarios</li>
           </Link>
           <Link to='/usuarios' className={`usuarios ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
@@ -148,25 +151,26 @@ if (funcao) {
             </tr>
           </thead>
           <tbody>
-          {usuarios.map(usuario => (
-  <tr key={usuario.id}>
-    <td>{editandoId === usuario.id ? <input type="text" value={novoUsuario.nome} onChange={e => handleChange('nome', e.target.value)} /> : usuario.nome}</td>
-    <td>{editandoId === usuario.id ? <input type="text" value={novoUsuario.senha} onChange={e => handleChange('senha', e.target.value)} /> : '**********'}</td>
-    <td>{editandoId === usuario.id ? <select value={novoUsuario.funcao} onChange={e => handleChange('funcao', e.target.value)}>
-      <option>Escolha a função</option>
-      <option value="Medico">Medico</option>
-      <option value="Enfermeiro">Enfermeiro</option>
-      <option value="Familiar">Familiar</option>
-      <option value="Usuario">Usuário</option>
-    </select> : usuario.funcao}</td>
-    <td className={`acoes ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
-      {editandoId === usuario.id ? <button className="salvar" onClick={handleSalvarUsuario}>Salvar</button> : <>
-        <button className="editar" onClick={() => handleEditarUsuario(usuario)}>Editar</button>
-        <button className="excluir" onClick={() => handleExcluirUsuario(usuario.id)}>Excluir</button>
-      </>}
-    </td>
-  </tr>
-))}
+            {usuarios
+              .map(usuario => (
+                <tr key={usuario.id}>
+                  <td>{editandoId === usuario.id ? <input type="text" value={novoUsuario.nome} onChange={e => handleChange('nome', e.target.value)} /> : usuario.nome}</td>
+                  <td>{editandoId === usuario.id ? <input type="text" value={novoUsuario.senha} onChange={e => handleChange('senha', e.target.value)} /> : '**********'}</td>
+                  <td>{editandoId === usuario.id ? <select value={novoUsuario.funcao} onChange={e => handleChange('funcao', e.target.value)}>
+                    <option>Escolha a função</option>
+                    <option value="Medico">Medico</option>
+                    <option value="Enfermeiro">Enfermeiro</option>
+                    <option value="Familiar">Familiar</option>
+                    <option value="Usuario">Usuário</option>
+                  </select> : usuario.funcao}</td>
+                  <td className={`acoes ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
+                    {editandoId === usuario.id ? <button className="salvar" onClick={handleSalvarUsuario}>Salvar</button> : <>
+                      <button className="editar" onClick={() => handleEditarUsuario(usuario)}>Editar</button>
+                      <button className="excluir" onClick={() => handleExcluirUsuario(usuario.id)}>Excluir</button>
+                    </>}
+                  </td>
+                </tr>
+              ))}
 
             {adicionarUsuario && (
               <tr>

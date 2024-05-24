@@ -4,6 +4,8 @@ import './Navbar.css';
 import { Link, useHistory } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 function App() {
   const [alimentos, setAlimentos] = useState([]);
@@ -121,6 +123,19 @@ function App() {
     localStorage.clear();
     history.push('/login');
   };
+
+  const gerarPDF = () => {
+    const doc = new jsPDF();
+    const columnHeaders = ['Nome', 'Alimento', 'Horario', 'Observação'];
+    const rows = alimentosFiltrados.map(alimentos => [alimentos.nome, alimentos.alimento, alimentos.horario, alimentos.observacao]);
+  
+    doc.autoTable({
+      head: [columnHeaders],
+      body: rows,
+    });
+  
+    doc.save('pacientes.pdf');
+  };
   return (
     <>
       <nav className='navbar'>
@@ -135,10 +150,13 @@ function App() {
           <Link to='/medicamentos' className='medicamentos'>
             <li>Medicamentos</li>
           </Link>
-          <Link to='/funcionarios' className={`funcionarios ${funcaoUsuario === 'familiar' ? 'hidden' : ''}`}>
+          <Link to='/diario' >
+            <li>Diario</li>
+          </Link>
+          <Link to='/funcionarios' className={`funcionarios ${(funcaoUsuario === 'medico' || funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
             <li>Funcionarios</li>
           </Link>
-          <Link to='/usuarios' className={`usuarios ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
+          <Link to='/usuarios' className={`usuarios ${(funcaoUsuario === 'medico' || funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
             <li>Usuarios</li>
           </Link>
           <li onClick={handleLogout} className='logout'>Logout</li> {/* Adiciona um botão de logout */}
@@ -198,7 +216,7 @@ function App() {
               <td>
                 {editandoId === alimento.id ? (
                   <input
-                    type="text"
+                    type="time"
                     value={novoAlimento.horario}
                     onChange={e => handleChange('horario', e.target.value)}
                   />
@@ -260,7 +278,7 @@ function App() {
               <td>
                 <input
                 className='campoTabela'
-                  type="text"
+                  type="time"
                   value={novoAlimento.horario}
                   onChange={e => handleChange('horario', e.target.value)}
                 />
@@ -282,9 +300,14 @@ function App() {
           )}
         </tbody>
       </table>
-      <button className={`adicionar ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`} onClick={handleAdicionarAlimento}>
-        Adicionar Alimento
-      </button>
+      <div class="botoes">
+        <button className={`adicionar ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`} onClick={handleAdicionarAlimento}>
+          Adicionar Alimento
+        </button>
+        <button className="pdf" onClick={gerarPDF}>
+            Gerar PDF
+          </button>
+      </div>
     </div>
     </>
   );

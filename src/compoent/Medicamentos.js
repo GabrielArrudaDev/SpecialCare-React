@@ -4,6 +4,8 @@ import './Navbar.css';
 import { Link, useHistory} from "react-router-dom";
 import { FaBars } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 function App() {
   const [medicamentos, setMedicamentos] = useState([]);
@@ -121,6 +123,18 @@ function App() {
     history.push('/login');
   };
 
+  const gerarPDF = () => {
+    const doc = new jsPDF();
+    const columnHeaders = ['Nome', 'Medicamento', 'Tipo','Dosagem','Horario' ,'Observação'];
+    const rows = medicamentosFiltrados.map(medicamentos => [medicamentos.nome, medicamentos.medicamento, medicamentos.tipo, medicamentos.dosagem, medicamentos.horario, medicamentos.observacao]);
+  
+    doc.autoTable({
+      head: [columnHeaders],
+      body: rows,
+    });
+  
+    doc.save('pacientes.pdf');
+  };
   return (
     <>
       <nav className='navbar'>
@@ -135,10 +149,13 @@ function App() {
           <Link to='/medicamentos' className='medicamentos'>
             <li>Medicamentos</li>
           </Link>
-          <Link to='/funcionarios' className={`funcionarios ${funcaoUsuario === 'familiar' ? 'hidden' : ''}`}>
+          <Link to='/diario' >
+            <li>Diario</li>
+          </Link>
+          <Link to='/funcionarios' className={`funcionarios ${(funcaoUsuario === 'medico' || funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
             <li>Funcionarios</li>
           </Link>
-          <Link to='/usuarios' className={`usuarios ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
+          <Link to='/usuarios' className={`usuarios ${(funcaoUsuario === 'medico' || funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
             <li>Usuarios</li>
           </Link>
           <li onClick={handleLogout} className='logout'>Logout</li> {/* Adiciona um botão de logout */}
@@ -226,7 +243,7 @@ function App() {
                 {editandoId === medicamento.id ? (
                   <input
                     className='campoTabela'
-                    type="text"
+                    type="time"
                     value={novoMedicamento.horario}
                     onChange={e => handleChange('horario', e.target.value)}
                   />
@@ -305,7 +322,7 @@ function App() {
               <td>
                 <input
                 className='campoTabela'
-                  type="text"
+                  type="time"
                   value={novoMedicamento.horario}
                   onChange={e => handleChange('horario', e.target.value)}
                 />
@@ -327,9 +344,14 @@ function App() {
           )}
         </tbody>
       </table>
-      <button className={`adicionar ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`} onClick={handleAdicionarMedicamento}>
-        Adicionar Medicamento
-      </button>
+      <div class="botoes">
+        <button className={`adicionar ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`} onClick={handleAdicionarMedicamento}>
+          Adicionar Medicamento
+        </button>
+        <button className="pdf" onClick={gerarPDF}>
+            Gerar PDF
+          </button>
+      </div>
     </div>
     </>
   );
