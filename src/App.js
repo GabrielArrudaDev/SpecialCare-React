@@ -8,7 +8,6 @@ import Funcionarios from "./compoent/Funcionarios";
 import Login from "./compoent/Login";
 
 function App() {
-  const isLoggedIn = !!localStorage.getItem("funcaoUsuario");
 
   return (
     <Router>

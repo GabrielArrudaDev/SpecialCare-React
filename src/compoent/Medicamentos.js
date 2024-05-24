@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './Home.css';
+import './App.css';
 import './Navbar.css';
 import { Link, useHistory} from "react-router-dom";
 import { FaBars } from "react-icons/fa";
@@ -135,10 +135,10 @@ function App() {
           <Link to='/medicamentos' className='medicamentos'>
             <li>Medicamentos</li>
           </Link>
-          <Link to='/funcionarios' className='funcionarios'>
+          <Link to='/funcionarios' className={`funcionarios ${funcaoUsuario === 'familiar' ? 'hidden' : ''}`}>
             <li>Funcionarios</li>
           </Link>
-          <Link to='/usuarios' className={`usuarios ${funcaoUsuario === 'usuario' ? 'hidden' : ''}`}>
+          <Link to='/usuarios' className={`usuarios ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
             <li>Usuarios</li>
           </Link>
           <li onClick={handleLogout} className='logout'>Logout</li> {/* Adiciona um botão de logout */}
@@ -150,6 +150,7 @@ function App() {
     <div className="App table-wrapper">
       <h1>Tabela de Medicamentos</h1>
       <input
+      className='pesquisar'
         type="text"
         placeholder="Pesquisar por nome do paciente..."
         value={termoPesquisa}
@@ -164,7 +165,7 @@ function App() {
             <th>Dosagem</th>
             <th>Horário</th>
             <th>Observação</th>
-            <th className={` ${funcaoUsuario === 'usuario' ? 'hidden' : ''}`}>Ações</th>
+            <th className={` ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -188,6 +189,7 @@ function App() {
               <td>
                 {editandoId === medicamento.id ? (
                   <input
+                    className='campoTabela'
                     type="text"
                     value={novoMedicamento.medicamento}
                     onChange={e => handleChange('medicamento', e.target.value)}
@@ -199,6 +201,7 @@ function App() {
               <td>
                 {editandoId === medicamento.id ? (
                   <input
+                    className='campoTabela'
                     type="text"
                     value={novoMedicamento.tipo}
                     onChange={e => handleChange('tipo', e.target.value)}
@@ -210,6 +213,7 @@ function App() {
               <td>
                 {editandoId === medicamento.id ? (
                   <input
+                    className='campoTabela'
                     type="text"
                     value={novoMedicamento.dosagem}
                     onChange={e => handleChange('dosagem', e.target.value)}
@@ -221,6 +225,7 @@ function App() {
               <td>
                 {editandoId === medicamento.id ? (
                   <input
+                    className='campoTabela'
                     type="text"
                     value={novoMedicamento.horario}
                     onChange={e => handleChange('horario', e.target.value)}
@@ -232,6 +237,7 @@ function App() {
               <td>
                 {editandoId === medicamento.id ? (
                   <input
+                    className='campoTabela'
                     type="text"
                     value={novoMedicamento.observacao}
                     onChange={e => handleChange('observacao', e.target.value)}
@@ -240,7 +246,7 @@ function App() {
                   medicamento.observacao
                 )}
               </td>
-              <td className={`acoes ${funcaoUsuario === 'usuario' ? 'hidden' : ''}`}>
+              <td className={`acoes ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
                 {editandoId === medicamento.id ? (
                   <button className="salvar" onClick={handleSalvarMedicamento}>
                     Salvar
@@ -262,6 +268,7 @@ function App() {
             <tr>
               <td>
                 <select
+                className='campoTabela'
                   value={novoMedicamento.nome}
                   onChange={e => handleChange('nome', e.target.value)}
                 >
@@ -273,6 +280,7 @@ function App() {
               </td>
               <td>
                 <input
+                className='campoTabela'
                   type="text"
                   value={novoMedicamento.medicamento}
                   onChange={e => handleChange('medicamento', e.target.value)}
@@ -280,6 +288,7 @@ function App() {
               </td>
               <td>
                 <input
+                className='campoTabela'
                   type="text"
                   value={novoMedicamento.tipo}
                   onChange={e => handleChange('tipo', e.target.value)}
@@ -287,6 +296,7 @@ function App() {
               </td>
               <td>
                 <input
+                className='campoTabela'
                   type="text"
                   value={novoMedicamento.dosagem}
                   onChange={e => handleChange('dosagem', e.target.value)}
@@ -294,6 +304,7 @@ function App() {
               </td>
               <td>
                 <input
+                className='campoTabela'
                   type="text"
                   value={novoMedicamento.horario}
                   onChange={e => handleChange('horario', e.target.value)}
@@ -301,6 +312,7 @@ function App() {
               </td>
               <td>
                 <input
+                className='campoTabela'
                   type="text"
                   value={novoMedicamento.observacao}
                   onChange={e => handleChange('observacao', e.target.value)}
@@ -315,7 +327,7 @@ function App() {
           )}
         </tbody>
       </table>
-      <button className="adicionar" onClick={handleAdicionarMedicamento}>
+      <button className={`adicionar ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`} onClick={handleAdicionarMedicamento}>
         Adicionar Medicamento
       </button>
     </div>

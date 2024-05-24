@@ -8,12 +8,13 @@
 
 a {
   text-decoration: none;
-  background-color: aliceblue;
   border-radius: 10px;
+  font-weight: 550;
+  font-size: 18px;
 }
 
-a:hover {
-  background-color: rgb(134, 197, 252);
+li:hover {
+  color: #fff;
 }
 
 li {
@@ -27,12 +28,12 @@ li {
   height: 10vh;
   width: 100vw;
   box-shadow: rgba(50, 50, 93, 0.23) 0px 30px 30px -20px;
-  background-color: rgb(196, 255, 108);
+  background-color: rgb(79, 167, 138);
   padding: 0px 20px;
   
 }
 .logo {
-  font-size: 30px;
+  font-size: 40px;
   letter-spacing: 1px;
 }
 .nav-links {
@@ -40,16 +41,18 @@ li {
   justify-content: flex-end;
   width: 75%;
   display: flex;
-  gap: 20px;
+
 }
 
 .nav-links li {
   color: black;
   font-size: 20px;
+  font-weight: 80px;
   padding: 10px 20px;
   margin: 0 10px;
   cursor: pointer;
   text-transform: capitalize;
+  display: none;
 }
 .hero {
   text-align: center;
@@ -59,8 +62,51 @@ li {
   text-align: center;
   font-size: 80px;
 }
+.nav-links-mobile {
+  position: absolute;
+  display: block;
+  list-style: none;
+  top: 0%;
+  transition: all 0.5s ease-in;
+  margin-left: 23%;
+  height: 10%;
+  width: 70%;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+ul li {
+  margin-left: 1em;
+  width: 100%;
+  transition: .3s;
+  text-align: center;
+  color: #000;
+
+}
+ul {
+  gap: 2em;
+}
+
+.logout {
+  cursor: pointer;
+  font-weight: 500;
+  background-color: #f2f2f2;
+  width: 6em;
+  padding: 10px;
+  transition: .3s;
+  margin-left: 4em;
+}
+.logout:hover {
+  color: #fff;
+  background-color: #000;
+}
+
 .mobile-menu-icon {
-  display: none;
+  position: absolute;
+  display: block;
+  right: 20px;
 }
 button {
   border: none;
@@ -68,49 +114,13 @@ button {
   font-size: 20px;
   background: none;
 }
-@media (max-width: 1300px) {
-  .logo {
-    display: flex;
-    position: absolute;
-    top: 15px;
-    left: 35px;
-  }
-  .nav-links {
-    display: none;
-  }
-  .nav-links-mobile {
-    position: absolute;
-    display: block;
-    list-style: none;
-    box-shadow: rgba(50, 50, 93, 0.23) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
-    left: 0;
-    top: 10%;
-    transition: all 0.5s ease-in-out;
-    width: 100%;
-    background-color: white;
-  }
-  ul li {
-    padding: 32px;
-    width: 100%;
-    transition: all 0.5s ease-in-out;
-    text-align: center;
-  }
-  .mobile-menu-icon {
-    position: absolute;
-    display: block;
-    right: 20px;
-  }
-  .hero h1 {
-    font-size: 50px;
-  }
-}
+
 /* Navbar.css */
 .hidden {
   display: none;
 }
 
+
 .logout{
-  text-decoration: none;
-  background-color: aliceblue;
   border-radius: 10px;
 }

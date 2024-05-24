@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './Funcionarios.css';
+import './App.css';
 import './Navbar.css';
 import { Link, useHistory } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
@@ -121,10 +121,10 @@ function Funcionario() {
           <Link to='/medicamentos' className='medicamentos'>
             <li>Medicamentos</li>
           </Link>
-          <Link to='/funcionarios' className='funcionarios'>
+          <Link to='/funcionarios' className={`funcionarios ${funcaoUsuario === 'familiar' ? 'hidden' : ''}`}>
             <li>Funcionarios</li>
           </Link>
-          <Link to='/usuarios' className={`usuarios ${funcaoUsuario === 'usuario' ? 'hidden' : ''}`}>
+          <Link to='/usuarios' className={`usuarios ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
             <li>Usuarios</li>
           </Link>
           <li onClick={handleLogout} className='logout'>Logout</li> {/* Adiciona um botão de logout */}
@@ -136,6 +136,7 @@ function Funcionario() {
     <div className="App tabble-wrapper">
       <h1>Tabela Funcionários</h1>
       <input
+        className='pesquisar'
         type="text"
         placeholder="Pesquisar por nome do alimento..."
         value={termoPesquisa}
@@ -147,7 +148,7 @@ function Funcionario() {
             <th>Nome</th>
             <th>CPF</th>
             <th>Função</th>
-            <th className={` ${funcaoUsuario === 'usuario' ? 'hidden' : ''}`}>Ações</th>
+            <th className={` ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -191,7 +192,7 @@ function Funcionario() {
                   funcionario.funcao
                 )}
               </td>
-              <td className={`acoes ${funcaoUsuario === 'usuario' ? 'hidden' : ''}`}>
+              <td className={`acoes ${(funcaoUsuario === 'Enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
                 {editandoId === funcionario.id ? (
                   <button className="salvar" onClick={handleSalvarFuncionario}>
                     Salvar
@@ -246,7 +247,7 @@ function Funcionario() {
           )}
         </tbody>
       </table>
-      <button className="adicionar" onClick={handleAdicionarFuncionario}>
+      <button className={`adicionar ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`} onClick={handleAdicionarFuncionario}>
         Adicionar Funcionário
       </button>
     </div>

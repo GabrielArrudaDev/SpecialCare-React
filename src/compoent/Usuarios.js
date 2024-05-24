@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './Usuarios.css';
+import './App.css';
 import './Navbar.css';
 import { Link, useHistory } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
@@ -124,11 +124,10 @@ if (funcao) {
           <Link to='/medicamentos' className='medicamentos'>
             <li>Medicamentos</li>
           </Link>
-          <Link to='/funcionarios' className='funcionarios'>
+          <Link to='/funcionarios' className={`funcionarios ${funcaoUsuario === 'familiar' ? 'hidden' : ''}`}>
             <li>Funcionarios</li>
           </Link>
-          {/* Aplicar classe hidden ao link de usuários se a função for 'usuario' */}
-          <Link to='/usuarios' className={`usuarios ${funcaoUsuario === 'usuario' ? 'hidden' : ''}`}>
+          <Link to='/usuarios' className={`usuarios ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
             <li>Usuarios</li>
           </Link>
           <li onClick={handleLogout} className='logout'>Logout</li> {/* Adiciona um botão de logout */}
@@ -145,7 +144,7 @@ if (funcao) {
               <th>Nome</th>
               <th>Senha</th>
               <th>Função</th>
-              <th className={` ${funcaoUsuario === 'usuario' ? 'hidden' : ''}`} >Ações</th>
+              <th className={` ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`} >Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -155,10 +154,12 @@ if (funcao) {
     <td>{editandoId === usuario.id ? <input type="text" value={novoUsuario.senha} onChange={e => handleChange('senha', e.target.value)} /> : '**********'}</td>
     <td>{editandoId === usuario.id ? <select value={novoUsuario.funcao} onChange={e => handleChange('funcao', e.target.value)}>
       <option>Escolha a função</option>
-      <option value="Admin">Admin</option>
+      <option value="Medico">Medico</option>
+      <option value="Enfermeiro">Enfermeiro</option>
+      <option value="Familiar">Familiar</option>
       <option value="Usuario">Usuário</option>
     </select> : usuario.funcao}</td>
-    <td className={`acoes ${funcaoUsuario === 'usuario' ? 'hidden' : ''}`}>
+    <td className={`acoes ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
       {editandoId === usuario.id ? <button className="salvar" onClick={handleSalvarUsuario}>Salvar</button> : <>
         <button className="editar" onClick={() => handleEditarUsuario(usuario)}>Editar</button>
         <button className="excluir" onClick={() => handleExcluirUsuario(usuario.id)}>Excluir</button>
@@ -174,8 +175,9 @@ if (funcao) {
                 <td>
                   <select value={novoUsuario.funcao} onChange={e => handleChange('funcao', e.target.value)}>
                     <option>Escolha a função</option>
-                    <option value="admin">Admin</option>
-                    <option value="usuario">Usuário</option>
+                    <option value="Medico">Medico</option>
+                    <option value="Enfermeiro">Enfermeiro</option>
+                    <option value="Familiar">Familiar</option>
                   </select>
                 </td>
                 <td className="acoes"><button className="salvar" onClick={handleSalvarUsuario}>Salvar</button></td>
