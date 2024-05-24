@@ -16,11 +16,11 @@ function App() {
   const [termoPesquisa, setTermoPesquisa] = useState('');
   const [mobile, setMobile] = useState(false);
   const [funcaoUsuario, setFuncaoUsuario] = useState('');
+  const [popupMessage, setPopupMessage] = useState('');
+  const [popupVisible, setPopupVisible] = useState(false);
   const history = useHistory();
 
-  
   useEffect(() => {
-    // Recupera a função do usuário do localStorage e a converte para minúsculas
     const funcao = localStorage.getItem('funcaoUsuario')?.toLowerCase();
     setFuncaoUsuario(funcao);
   }, []);
@@ -70,6 +70,7 @@ function App() {
           prevAlimentos.map(alimento => (alimento.id === editandoId ? novoAlimento : alimento))
         );
         setEditandoId(null);
+        showPopup('Alimento editado com sucesso!');
       } else {
         const response = await fetch('http://localhost:8080/api/alimentos', {
           method: 'POST',
@@ -80,6 +81,7 @@ function App() {
         });
         const data = await response.json();
         setAlimentos(prevAlimentos => [...prevAlimentos, data]);
+        showPopup('Alimento adicionado com sucesso!');
       }
       setNovoAlimento({ nome: '', alimento: '', horario: '', observacao: '' });
     } catch (error) {
@@ -93,6 +95,7 @@ function App() {
         method: 'DELETE',
       });
       setAlimentos(prevAlimentos => prevAlimentos.filter(alimento => alimento.id !== id));
+      showPopup('Alimento excluído com sucesso!');
     } catch (error) {
       console.error('Erro ao excluir alimento:', error);
     }
@@ -119,7 +122,6 @@ function App() {
   );
 
   const handleLogout = () => {
-    // Limpa o localStorage e redireciona para a tela de login
     localStorage.clear();
     history.push('/login');
   };
@@ -128,16 +130,28 @@ function App() {
     const doc = new jsPDF();
     const columnHeaders = ['Nome', 'Alimento', 'Horario', 'Observação'];
     const rows = alimentosFiltrados.map(alimentos => [alimentos.nome, alimentos.alimento, alimentos.horario, alimentos.observacao]);
-  
+
     doc.autoTable({
       head: [columnHeaders],
       body: rows,
     });
-  
+
     doc.save('pacientes.pdf');
   };
+
+  const showPopup = (message) => {
+    setPopupMessage(message);
+    setPopupVisible(true);
+    setTimeout(() => {
+      setPopupVisible(false);
+    }, 3000);
+  };
+
   return (
     <>
+      <div className={`popup ${popupVisible ? 'show' : ''}`}>
+        {popupMessage}
+      </div>
       <nav className='navbar'>
         <h3 className='logo'>SpecialCare</h3>
         <ul className={mobile ? "nav-links-mobile" : "nav-links"} onClick={() => setMobile(false)}>
@@ -159,37 +173,109 @@ function App() {
           <Link to='/usuarios' className={`usuarios ${(funcaoUsuario === 'medico' || funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
             <li>Usuarios</li>
           </Link>
-          <li onClick={handleLogout} className='logout'>Logout</li> {/* Adiciona um botão de logout */}
+          <li onClick={handleLogout} className='logout'>Logout</li>
         </ul>
         <button className='mobile-menu-icon' onClick={() => setMobile(!mobile)}>
           {mobile ? <ImCross /> : <FaBars />}
         </button>
       </nav>
-    <div className="App table-wrapper">
-      <h1>Tabela de Alimentos</h1>
-      <input
-      className='pesquisar'
-        type="text"
-        placeholder="Pesquisar por nome do alimento..."
-        value={termoPesquisa}
-        onChange={handlePesquisa}
-      />
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Alimento</th>
-            <th>Horário</th>
-            <th>Observação</th>
-            <th className={`${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {alimentosFiltrados.map(alimento => (
-            <tr key={alimento.id}>
-              <td>
-                {editandoId === alimento.id ? (
+      <div className="App table-wrapper">
+        <h1>Tabela de Alimentos</h1>
+        <input
+          className="pesquisar"
+          type="text"
+          placeholder="Pesquisar por nome do alimento..."
+          value={termoPesquisa}
+          onChange={handlePesquisa}
+        />
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Alimento</th>
+              <th>Horário</th>
+              <th>Observação</th>
+              <th className={`${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {alimentosFiltrados.map(alimento => (
+              <tr key={alimento.id}>
+                <td>
+                  {editandoId === alimento.id ? (
+                    <select
+                      className='campoTabela'
+                      value={novoAlimento.nome}
+                      onChange={e => handleChange('nome', e.target.value)}
+                    >
+                      <option value="">Selecione o nome</option>
+                      {pacientes.map(paciente => (
+                        <option key={paciente.id} value={paciente.nome}>{paciente.nome}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    alimento.nome
+                  )}
+                </td>
+                <td>
+                  {editandoId === alimento.id ? (
+                    <input
+                      className='campoTabela'
+                      type="text"
+                      value={novoAlimento.alimento}
+                      onChange={e => handleChange('alimento', e.target.value)}
+                    />
+                  ) : (
+                    alimento.alimento
+                  )}
+                </td>
+                <td>
+                  {editandoId === alimento.id ? (
+                    <input
+                      className='campoTabela'
+                      type="time"
+                      value={novoAlimento.horario}
+                      onChange={e => handleChange('horario', e.target.value)}
+                    />
+                  ) : (
+                    alimento.horario
+                  )}
+                </td>
+                <td>
+                  {editandoId === alimento.id ? (
+                    <input
+                      className='campoTabela'
+                      type="text"
+                      value={novoAlimento.observacao}
+                      onChange={e => handleChange('observacao', e.target.value)}
+                    />
+                  ) : (
+                    alimento.observacao
+                  )}
+                </td>
+                <td className={`acoes ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
+                  {editandoId === alimento.id ? (
+                    <button className="salvar" onClick={handleSalvarAlimento}>
+                      Salvar
+                    </button>
+                  ) : (
+                    <>
+                      <button className="editar" onClick={() => handleEditarAlimento(alimento)}>
+                        Editar
+                      </button>
+                      <button className="excluir" onClick={() => handleExcluirAlimento(alimento.id)}>
+                        Excluir
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {adicionarAlimento && (
+              <tr>
+                <td>
                   <select
+                    className='campoTabela'
                     value={novoAlimento.nome}
                     onChange={e => handleChange('nome', e.target.value)}
                   >
@@ -198,117 +284,49 @@ function App() {
                       <option key={paciente.id} value={paciente.nome}>{paciente.nome}</option>
                     ))}
                   </select>
-                ) : (
-                  alimento.nome
-                )}
-              </td>
-              <td>
-                {editandoId === alimento.id ? (
+                </td>
+                <td>
                   <input
+                    className='campoTabela'
                     type="text"
                     value={novoAlimento.alimento}
                     onChange={e => handleChange('alimento', e.target.value)}
                   />
-                ) : (
-                  alimento.alimento
-                )}
-              </td>
-              <td>
-                {editandoId === alimento.id ? (
+                </td>
+                <td>
                   <input
+                    className='campoTabela'
                     type="time"
                     value={novoAlimento.horario}
                     onChange={e => handleChange('horario', e.target.value)}
                   />
-                ) : (
-                  alimento.horario
-                )}
-              </td>
-              <td>
-                {editandoId === alimento.id ? (
+                </td>
+                <td>
                   <input
+                    className='campoTabela'
                     type="text"
                     value={novoAlimento.observacao}
                     onChange={e => handleChange('observacao', e.target.value)}
                   />
-                ) : (
-                  alimento.observacao
-                )}
-              </td>
-              <td className={`acoes ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
-                {editandoId === alimento.id ? (
+                </td>
+                <td className="acoes">
                   <button className="salvar" onClick={handleSalvarAlimento}>
                     Salvar
                   </button>
-                ) : (
-                  <>
-                    <button className="editar" onClick={() => handleEditarAlimento(alimento)}>
-                      Editar
-                    </button>
-                    <button className="excluir" onClick={() => handleExcluirAlimento(alimento.id)}>
-                      Excluir
-                    </button>
-                  </>
-                )}
-              </td>
-            </tr>
-          ))}
-          {adicionarAlimento && (
-            <tr>
-              <td>
-                <select
-                className='campoTabela'
-                  value={novoAlimento.nome}
-                  onChange={e => handleChange('nome', e.target.value)}
-                >
-                  <option value="">Selecione o nome</option>
-                  {pacientes.map(paciente => (
-                    <option key={paciente.id} value={paciente.nome}>{paciente.nome}</option>
-                  ))}
-                </select>
-              </td>
-              <td>
-                <input
-                className='campoTabela'
-                  type="text"
-                  value={novoAlimento.alimento}
-                  onChange={e => handleChange('alimento', e.target.value)}
-                />
-              </td>
-              <td>
-                <input
-                className='campoTabela'
-                  type="time"
-                  value={novoAlimento.horario}
-                  onChange={e => handleChange('horario', e.target.value)}
-                />
-              </td>
-              <td>
-                <input
-                className='campoTabela'
-                  type="text"
-                  value={novoAlimento.observacao}
-                  onChange={e => handleChange('observacao', e.target.value)}
-                />
-              </td>
-              <td className="acoes">
-                <button className="salvar" onClick={handleSalvarAlimento}>
-                  Salvar
-                </button>
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-      <div class="botoes">
-        <button className={`adicionar ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`} onClick={handleAdicionarAlimento}>
-          Adicionar Alimento
-        </button>
-        <button className="pdf" onClick={gerarPDF}>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+        <div className="botoes">
+          <button className={`adicionar ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`} onClick={handleAdicionarAlimento}>
+            Adicionar Alimento
+          </button>
+          <button className="pdf" onClick={gerarPDF}>
             Gerar PDF
           </button>
+        </div>
       </div>
-    </div>
     </>
   );
 }

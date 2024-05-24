@@ -15,14 +15,15 @@ function App() {
   const [termoPesquisa, setTermoPesquisa] = useState('');
   const [mobile, setMobile] = useState(false);
   const [funcaoUsuario, setFuncaoUsuario] = useState('');
+  const [popupMessage, setPopupMessage] = useState('');
+  const [popupVisible, setPopupVisible] = useState(false);
   const history = useHistory();
 
-
   useEffect(() => {
-    // Recupera a função do usuário do localStorage e a converte para minúsculas
     const funcao = localStorage.getItem('funcaoUsuario')?.toLowerCase();
     setFuncaoUsuario(funcao);
   }, []);
+
   useEffect(() => {
     async function fetchPacientes() {
       try {
@@ -51,13 +52,14 @@ function App() {
           },
           body: JSON.stringify({
             ...novoPaciente,
-            dieta: novoPaciente.dieta.charAt(0).toUpperCase() + novoPaciente.dieta.slice(1) // Capitaliza o valor da dieta
+            dieta: novoPaciente.dieta.charAt(0).toUpperCase() + novoPaciente.dieta.slice(1)
           }),
         });
         setPacientes(prevPacientes =>
           prevPacientes.map(paciente => (paciente.id === editandoId ? novoPaciente : paciente))
         );
         setEditandoId(null);
+        showPopup('Paciente editado com sucesso!');
       } else {
         const response = await fetch('http://localhost:8080/api/pacientes', {
           method: 'POST',
@@ -66,11 +68,12 @@ function App() {
           },
           body: JSON.stringify({
             ...novoPaciente,
-            dieta: novoPaciente.dieta.charAt(0).toUpperCase() + novoPaciente.dieta.slice(1) // Capitaliza o valor da dieta
+            dieta: novoPaciente.dieta.charAt(0).toUpperCase() + novoPaciente.dieta.slice(1)
           }),
         });
         const data = await response.json();
         setPacientes(prevPacientes => [...prevPacientes, data]);
+        showPopup('Paciente adicionado com sucesso!');
       }
       setNovoPaciente({ nome: '', idade: '', dieta: '', condicao: '', observacao: '' });
     } catch (error) {
@@ -84,6 +87,7 @@ function App() {
         method: 'DELETE',
       });
       setPacientes(prevPacientes => prevPacientes.filter(paciente => paciente.id !== id));
+      showPopup('Paciente excluído com sucesso!');
     } catch (error) {
       console.error('Erro ao excluir paciente:', error);
     }
@@ -110,7 +114,6 @@ function App() {
   );
 
   const handleLogout = () => {
-    // Limpa o localStorage e redireciona para a tela de login
     localStorage.clear();
     history.push('/login');
   };
@@ -128,8 +131,19 @@ function App() {
     doc.save('pacientes.pdf');
   };
 
+  const showPopup = (message) => {
+    setPopupMessage(message);
+    setPopupVisible(true);
+    setTimeout(() => {
+      setPopupVisible(false);
+    }, 3000);
+  };
+
   return (
     <>
+      <div className={`popup ${popupVisible ? 'show' : ''}`}>
+        {popupMessage}
+      </div>
       <nav className='navbar'>
         <h3 className='logo'>SpecialCare</h3>
         <ul className={mobile ? "nav-links-mobile" : "nav-links"} onClick={() => setMobile(false)}>
@@ -151,7 +165,7 @@ function App() {
           <Link to='/usuarios' className={`usuarios ${(funcaoUsuario === 'medico' || funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
             <li>Usuarios</li>
           </Link>
-          <li onClick={handleLogout} className='logout'>Logout</li> {/* Adiciona um botão de logout */}
+          <li onClick={handleLogout} className='logout'>Logout</li>
         </ul>
         <button className='mobile-menu-icon' onClick={() => setMobile(!mobile)}>
           {mobile ? <ImCross /> : <FaBars />}
@@ -331,7 +345,6 @@ function App() {
             Gerar PDF
           </button>
         </div>
-
       </div>
     </>
   );

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import './Navbar.css';
-import { Link, useHistory} from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
 import { ImCross } from "react-icons/im";
 import jsPDF from 'jspdf';
@@ -12,13 +12,15 @@ function App() {
   const [pacientes, setPacientes] = useState([]);
   const [adicionarMedicamento, setAdicionarMedicamento] = useState(false);
   const [editandoId, setEditandoId] = useState(null);
-  const [novoMedicamento, setNovoMedicamento] = useState({ nome: '', tipo: '', medicamento:'',dosagem: '', horario: '', observacao: '' });
+  const [novoMedicamento, setNovoMedicamento] = useState({ nome: '', tipo: '', medicamento: '', dosagem: '', horario: '', observacao: '' });
   const [termoPesquisa, setTermoPesquisa] = useState('');
   const [mobile, setMobile] = useState(false);
   const [funcaoUsuario, setFuncaoUsuario] = useState('');
+  const [popupMessage, setPopupMessage] = useState('');
+  const [popupVisible, setPopupVisible] = useState(false);
   const history = useHistory();
 
-  
+
   useEffect(() => {
     // Recupera a função do usuário do localStorage e a converte para minúsculas
     const funcao = localStorage.getItem('funcaoUsuario')?.toLowerCase();
@@ -70,6 +72,7 @@ function App() {
           prevMedicamentos.map(medicamento => (medicamento.id === editandoId ? novoMedicamento : medicamento))
         );
         setEditandoId(null);
+        showPopup('Medicamento editado com sucesso!');
       } else {
         const response = await fetch('http://localhost:8080/api/medicamentos', {
           method: 'POST',
@@ -80,8 +83,9 @@ function App() {
         });
         const data = await response.json();
         setMedicamentos(prevMedicamentos => [...prevMedicamentos, data]);
+        showPopup('Medicamento adicionado com sucesso!');
       }
-      setNovoMedicamento({ nome: '', tipo: '', medicamento:'',dosagem: '', horario: '', observacao: '' });
+      setNovoMedicamento({ nome: '', tipo: '', medicamento: '', dosagem: '', horario: '', observacao: '' });
     } catch (error) {
       console.error('Erro ao salvar medicamento:', error);
     }
@@ -93,6 +97,7 @@ function App() {
         method: 'DELETE',
       });
       setMedicamentos(prevMedicamentos => prevMedicamentos.filter(medicamento => medicamento.id !== id));
+      showPopup('Medicamento excluído com sucesso!');
     } catch (error) {
       console.error('Erro ao excluir medicamento:', error);
     }
@@ -125,18 +130,29 @@ function App() {
 
   const gerarPDF = () => {
     const doc = new jsPDF();
-    const columnHeaders = ['Nome', 'Medicamento', 'Tipo','Dosagem','Horario' ,'Observação'];
+    const columnHeaders = ['Nome', 'Medicamento', 'Tipo', 'Dosagem', 'Horario', 'Observação'];
     const rows = medicamentosFiltrados.map(medicamentos => [medicamentos.nome, medicamentos.medicamento, medicamentos.tipo, medicamentos.dosagem, medicamentos.horario, medicamentos.observacao]);
-  
+
     doc.autoTable({
       head: [columnHeaders],
       body: rows,
     });
-  
+
     doc.save('pacientes.pdf');
+  };
+
+  const showPopup = (message) => {
+    setPopupMessage(message);
+    setPopupVisible(true);
+    setTimeout(() => {
+      setPopupVisible(false);
+    }, 3000);
   };
   return (
     <>
+      <div className={`popup ${popupVisible ? 'show' : ''}`}>
+        {popupMessage}
+      </div>
       <nav className='navbar'>
         <h3 className='logo'>SpecialCare</h3>
         <ul className={mobile ? "nav-links-mobile" : "nav-links"} onClick={() => setMobile(false)}>
@@ -164,33 +180,128 @@ function App() {
           {mobile ? <ImCross /> : <FaBars />}
         </button>
       </nav>
-    <div className="App table-wrapper">
-      <h1>Tabela de Medicamentos</h1>
-      <input
-      className='pesquisar'
-        type="text"
-        placeholder="Pesquisar por nome do paciente..."
-        value={termoPesquisa}
-        onChange={handlePesquisa}
-      />
-      <table>
-        <thead>
-          <tr>
-            <th>Paciente</th>
-            <th>Medicamento</th>
-            <th>Tipo</th>
-            <th>Dosagem</th>
-            <th>Horário</th>
-            <th>Observação</th>
-            <th className={` ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {medicamentosFiltrados.map(medicamento => (
-            <tr key={medicamento.id}>
-              <td>
-                {editandoId === medicamento.id ? (
+      <div className="App table-wrapper">
+        <h1>Tabela de Medicamentos</h1>
+        <input
+          className='pesquisar'
+          type="text"
+          placeholder="Pesquisar por nome do paciente..."
+          value={termoPesquisa}
+          onChange={handlePesquisa}
+        />
+        <table>
+          <thead>
+            <tr>
+              <th>Paciente</th>
+              <th>Medicamento</th>
+              <th>Tipo</th>
+              <th>Dosagem</th>
+              <th>Horário</th>
+              <th>Observação</th>
+              <th className={` ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {medicamentosFiltrados.map(medicamento => (
+              <tr key={medicamento.id}>
+                <td>
+                  {editandoId === medicamento.id ? (
+                    <select
+                      value={novoMedicamento.nome}
+                      onChange={e => handleChange('nome', e.target.value)}
+                    >
+                      <option value="">Selecione o paciente</option>
+                      {pacientes.map(paciente => (
+                        <option key={paciente.id} value={paciente.nome}>{paciente.nome}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    medicamento.nome
+                  )}
+                </td>
+                <td>
+                  {editandoId === medicamento.id ? (
+                    <input
+                      className='campoTabela'
+                      type="text"
+                      value={novoMedicamento.medicamento}
+                      onChange={e => handleChange('medicamento', e.target.value)}
+                    />
+                  ) : (
+                    medicamento.medicamento
+                  )}
+                </td>
+                <td>
+                  {editandoId === medicamento.id ? (
+                    <input
+                      className='campoTabela'
+                      type="text"
+                      value={novoMedicamento.tipo}
+                      onChange={e => handleChange('tipo', e.target.value)}
+                    />
+                  ) : (
+                    medicamento.tipo
+                  )}
+                </td>
+                <td>
+                  {editandoId === medicamento.id ? (
+                    <input
+                      className='campoTabela'
+                      type="text"
+                      value={novoMedicamento.dosagem}
+                      onChange={e => handleChange('dosagem', e.target.value)}
+                    />
+                  ) : (
+                    medicamento.dosagem
+                  )}
+                </td>
+                <td>
+                  {editandoId === medicamento.id ? (
+                    <input
+                      className='campoTabela'
+                      type="time"
+                      value={novoMedicamento.horario}
+                      onChange={e => handleChange('horario', e.target.value)}
+                    />
+                  ) : (
+                    medicamento.horario
+                  )}
+                </td>
+                <td>
+                  {editandoId === medicamento.id ? (
+                    <input
+                      className='campoTabela'
+                      type="text"
+                      value={novoMedicamento.observacao}
+                      onChange={e => handleChange('observacao', e.target.value)}
+                    />
+                  ) : (
+                    medicamento.observacao
+                  )}
+                </td>
+                <td className={`acoes ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
+                  {editandoId === medicamento.id ? (
+                    <button className="salvar" onClick={handleSalvarMedicamento}>
+                      Salvar
+                    </button>
+                  ) : (
+                    <>
+                      <button className="editar" onClick={() => handleEditarMedicamento(medicamento)}>
+                        Editar
+                      </button>
+                      <button className="excluir" onClick={() => handleExcluirMedicamento(medicamento.id)}>
+                        Excluir
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {adicionarMedicamento && (
+              <tr>
+                <td>
                   <select
+                    className='campoTabela'
                     value={novoMedicamento.nome}
                     onChange={e => handleChange('nome', e.target.value)}
                   >
@@ -199,160 +310,65 @@ function App() {
                       <option key={paciente.id} value={paciente.nome}>{paciente.nome}</option>
                     ))}
                   </select>
-                ) : (
-                  medicamento.nome
-                )}
-              </td>
-              <td>
-                {editandoId === medicamento.id ? (
+                </td>
+                <td>
                   <input
                     className='campoTabela'
                     type="text"
                     value={novoMedicamento.medicamento}
                     onChange={e => handleChange('medicamento', e.target.value)}
                   />
-                ) : (
-                  medicamento.medicamento
-                )}
-              </td>
-              <td>
-                {editandoId === medicamento.id ? (
+                </td>
+                <td>
                   <input
                     className='campoTabela'
                     type="text"
                     value={novoMedicamento.tipo}
                     onChange={e => handleChange('tipo', e.target.value)}
                   />
-                ) : (
-                  medicamento.tipo
-                )}
-              </td>
-              <td>
-                {editandoId === medicamento.id ? (
+                </td>
+                <td>
                   <input
                     className='campoTabela'
                     type="text"
                     value={novoMedicamento.dosagem}
                     onChange={e => handleChange('dosagem', e.target.value)}
                   />
-                ) : (
-                  medicamento.dosagem
-                )}
-              </td>
-              <td>
-                {editandoId === medicamento.id ? (
+                </td>
+                <td>
                   <input
                     className='campoTabela'
                     type="time"
                     value={novoMedicamento.horario}
                     onChange={e => handleChange('horario', e.target.value)}
                   />
-                ) : (
-                  medicamento.horario
-                )}
-              </td>
-              <td>
-                {editandoId === medicamento.id ? (
+                </td>
+                <td>
                   <input
                     className='campoTabela'
                     type="text"
                     value={novoMedicamento.observacao}
                     onChange={e => handleChange('observacao', e.target.value)}
                   />
-                ) : (
-                  medicamento.observacao
-                )}
-              </td>
-              <td className={`acoes ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
-                {editandoId === medicamento.id ? (
+                </td>
+                <td className="acoes">
                   <button className="salvar" onClick={handleSalvarMedicamento}>
                     Salvar
                   </button>
-                ) : (
-                  <>
-                    <button className="editar" onClick={() => handleEditarMedicamento(medicamento)}>
-                      Editar
-                    </button>
-                    <button className="excluir" onClick={() => handleExcluirMedicamento(medicamento.id)}>
-                      Excluir
-                    </button>
-                  </>
-                )}
-              </td>
-            </tr>
-          ))}
-          {adicionarMedicamento && (
-            <tr>
-              <td>
-                <select
-                className='campoTabela'
-                  value={novoMedicamento.nome}
-                  onChange={e => handleChange('nome', e.target.value)}
-                >
-                  <option value="">Selecione o paciente</option>
-                  {pacientes.map(paciente => (
-                    <option key={paciente.id} value={paciente.nome}>{paciente.nome}</option>
-                  ))}
-                </select>
-              </td>
-              <td>
-                <input
-                className='campoTabela'
-                  type="text"
-                  value={novoMedicamento.medicamento}
-                  onChange={e => handleChange('medicamento', e.target.value)}
-                />
-              </td>
-              <td>
-                <input
-                className='campoTabela'
-                  type="text"
-                  value={novoMedicamento.tipo}
-                  onChange={e => handleChange('tipo', e.target.value)}
-                />
-              </td>
-              <td>
-                <input
-                className='campoTabela'
-                  type="text"
-                  value={novoMedicamento.dosagem}
-                  onChange={e => handleChange('dosagem', e.target.value)}
-                />
-              </td>
-              <td>
-                <input
-                className='campoTabela'
-                  type="time"
-                  value={novoMedicamento.horario}
-                  onChange={e => handleChange('horario', e.target.value)}
-                />
-              </td>
-              <td>
-                <input
-                className='campoTabela'
-                  type="text"
-                  value={novoMedicamento.observacao}
-                  onChange={e => handleChange('observacao', e.target.value)}
-                />
-              </td>
-              <td className="acoes">
-                <button className="salvar" onClick={handleSalvarMedicamento}>
-                  Salvar
-                </button>
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-      <div class="botoes">
-        <button className={`adicionar ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`} onClick={handleAdicionarMedicamento}>
-          Adicionar Medicamento
-        </button>
-        <button className="pdf" onClick={gerarPDF}>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+        <div class="botoes">
+          <button className={`adicionar ${(funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`} onClick={handleAdicionarMedicamento}>
+            Adicionar Medicamento
+          </button>
+          <button className="pdf" onClick={gerarPDF}>
             Gerar PDF
           </button>
+        </div>
       </div>
-    </div>
     </>
   );
 }

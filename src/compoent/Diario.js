@@ -17,6 +17,8 @@ function Diario() {
   const [termoPesquisa, setTermoPesquisa] = useState('');
   const [mobile, setMobile] = useState(false);
   const [funcaoUsuario, setFuncaoUsuario] = useState('');
+  const [popupMessage, setPopupMessage] = useState('');
+  const [popupVisible, setPopupVisible] = useState(false);
   const history = useHistory();
 
   useEffect(() => {
@@ -116,7 +118,7 @@ function Diario() {
     doc.save('pacientes.pdf');
   };
   
-
+  
   const handleSalvarDiario = async () => {
     try {
       console.log('Salvando diário:', novoDiario); // Log para verificar os dados sendo enviados
@@ -133,6 +135,7 @@ function Diario() {
           prevDiarios.map(diario => (diario.id === editandoId ? novoDiario : diario))
         );
         setEditandoId(null);
+      showPopup('Diário editado com sucesso!');
       } else {
         const response = await fetch('http://localhost:8080/api/diario', {
           method: 'POST',
@@ -146,44 +149,57 @@ function Diario() {
         }
         const data = await response.json();
         setDiarios(prevDiarios => [...prevDiarios, data]);
+      showPopup('Diário adicionado com sucesso!');
+
       }
       setNovoDiario({ nomePaciente: '', funcionario: '', funcaoFuncionario: '', diario: '', data: '', horario: '' });
     } catch (error) {
       console.error('Erro ao salvar diário:', error);
     }
   };
-
+  
   const handleExcluirDiario = async id => {
     try {
       await fetch(`http://localhost:8080/api/diario/${id}`, {
         method: 'DELETE',
       });
       setDiarios(prevDiarios => prevDiarios.filter(diario => diario.id !== id));
+      showPopup('Diário excluído com sucesso!');
     } catch (error) {
       console.error('Erro ao excluir diário:', error);
     }
   };
-
+  
   const handleEditarDiario = diario => {
     setEditandoId(diario.id);
     setNovoDiario({ ...diario, data: diario.data.split('T')[0], horario: diario.horario });
   };
-
+  
   const handlePesquisa = e => {
     setTermoPesquisa(e.target.value);
   };
-
+  
   const diariosFiltrados = diarios.filter(diario =>
     diario.nomePaciente && diario.nomePaciente.toLowerCase().includes(termoPesquisa.toLowerCase())
   );
-
+  
   const handleLogout = () => {
     localStorage.clear();
     history.push('/login');
   };
-
+  
+  const showPopup = (message) => {
+    setPopupMessage(message);
+    setPopupVisible(true);
+    setTimeout(() => {
+      setPopupVisible(false);
+    }, 3000);
+  };
   return (
     <>
+    <div className={`popup ${popupVisible ? 'show' : ''}`}>
+        {popupMessage}
+      </div>
       <nav className='navbar'>
         <h3 className='logo'>SpecialCare</h3>
         <ul className={mobile ? "nav-links-mobile" : "nav-links"} onClick={() => setMobile(false)}>
