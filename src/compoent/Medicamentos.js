@@ -44,7 +44,7 @@ function App() {
   useEffect(() => {
     async function fetchPacientes() {
       try {
-        const response = await fetch(`${apiBaseUrl}api/pacientes`);
+        const response = await fetch(`${apiBaseUrl}/api/pacientes`);
         const data = await response.json();
         setPacientes(data);
       } catch (error) {
