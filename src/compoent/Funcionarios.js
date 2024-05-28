@@ -27,7 +27,7 @@ function Funcionario() {
   useEffect(() => {
     async function fetchFuncionarios() {
       try {
-        const response = await fetch('http://localhost:8080/api/funcionarios');
+        const response = await fetch(`${apiBaseUrl}/api/funcionarios`);
         const data = await response.json();
         setFuncionarios(data);
       } catch (error) {
@@ -45,7 +45,7 @@ function Funcionario() {
     try {
       setAdicionarFuncionario(false);
       if (editandoId !== null) {
-        await fetch(`http://localhost:8080/api/funcionarios/${editandoId}`, {
+        await fetch(`${apiBaseUrl}/api/funcionarios/${editandoId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ function Funcionario() {
         );
         setEditandoId(null);
       } else {
-        const response = await fetch('http://localhost:8080/api/funcionarios', {
+        const response = await fetch(`${apiBaseUrl}/api/funcionarios`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -75,7 +75,7 @@ function Funcionario() {
 
   const handleExcluirFuncionario = async id => {
     try {
-      await fetch(`http://localhost:8080/api/funcionarios/${id}`, {
+      await fetch(`${apiBaseUrl}/api/funcionarios/${id}`, {
         method: 'DELETE',
       });
       setFuncionarios(prevFuncionarios => prevFuncionarios.filter(funcionario => funcionario.id !== id));
