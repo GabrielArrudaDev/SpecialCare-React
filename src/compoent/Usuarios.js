@@ -14,6 +14,8 @@ function App() {
   const [funcaoUsuario, setFuncaoUsuario] = useState('');
   const history = useHistory();
 
+  const apiBaseUrl = 'https://specialcare-banco.onrender.com';
+
   useEffect(() => {
     const funcao = localStorage.getItem('funcaoUsuario');
     console.log('Função do usuário:', funcao); // Adicione este log
@@ -29,7 +31,7 @@ function App() {
   useEffect(() => {
     async function fetchUsuarios() {
       try {
-        const response = await fetch('http://localhost:8080/api/usuarios');
+        const response = await fetch(`${apiBaseUrl}/api/usuarios`);
         const data = await response.json();
         setUsuarios(data);
       } catch (error) {
@@ -47,7 +49,7 @@ function App() {
     try {
       let data;
       if (editandoId !== null) {
-        await fetch(`http://localhost:8080/api/usuarios/${editandoId}`, {
+        await fetch(`${apiBaseUrl}/api/usuarios/${editandoId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -59,7 +61,7 @@ function App() {
         );
         setEditandoId(null);
       } else {
-        const response = await fetch('http://localhost:8080/api/usuarios', {
+        const response = await fetch(`${apiBaseUrl}/api/usuarios`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -80,7 +82,7 @@ function App() {
 
   const handleExcluirUsuario = async id => {
     try {
-      await fetch(`http://localhost:8080/api/usuarios/${id}`, {
+      await fetch(`${apiBaseUrl}/api/usuarios/${id}`, {
         method: 'DELETE',
       });
       setUsuarios(prevUsuarios => prevUsuarios.filter(usuario => usuario.id !== id));

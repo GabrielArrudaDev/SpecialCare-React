@@ -20,6 +20,7 @@ function App() {
   const [popupVisible, setPopupVisible] = useState(false);
   const history = useHistory();
 
+  const apiBaseUrl = 'https://specialcare-banco.onrender.com';
 
   useEffect(() => {
     // Recupera a função do usuário do localStorage e a converte para minúsculas
@@ -30,7 +31,7 @@ function App() {
   useEffect(() => {
     async function fetchMedicamentos() {
       try {
-        const response = await fetch('http://localhost:8080/api/medicamentos');
+        const response = await fetch(`${apiBaseUrl}/api/medicamentos`);
         const data = await response.json();
         setMedicamentos(data);
       } catch (error) {
@@ -43,7 +44,7 @@ function App() {
   useEffect(() => {
     async function fetchPacientes() {
       try {
-        const response = await fetch('http://localhost:8080/api/pacientes');
+        const response = await fetch(`${apiBaseUrl}api/pacientes`);
         const data = await response.json();
         setPacientes(data);
       } catch (error) {
@@ -61,7 +62,7 @@ function App() {
     try {
       setAdicionarMedicamento(false);
       if (editandoId !== null) {
-        await fetch(`http://localhost:8080/api/medicamentos/${editandoId}`, {
+        await fetch(`${apiBaseUrl}/api/medicamentos/${editandoId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -74,7 +75,7 @@ function App() {
         setEditandoId(null);
         showPopup('Medicamento editado com sucesso!');
       } else {
-        const response = await fetch('http://localhost:8080/api/medicamentos', {
+        const response = await fetch(`${apiBaseUrl}/api/medicamentos`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -93,7 +94,7 @@ function App() {
 
   const handleExcluirMedicamento = async id => {
     try {
-      await fetch(`http://localhost:8080/api/medicamentos/${id}`, {
+      await fetch(`${apiBaseUrl}/api/medicamentos/${id}`, {
         method: 'DELETE',
       });
       setMedicamentos(prevMedicamentos => prevMedicamentos.filter(medicamento => medicamento.id !== id));

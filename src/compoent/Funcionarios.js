@@ -15,6 +15,9 @@ function Funcionario() {
   const [funcaoUsuario, setFuncaoUsuario] = useState('');
   const history = useHistory();
   
+
+  const apiBaseUrl = 'https://specialcare-banco.onrender.com';
+
   useEffect(() => {
     // Recupera a função do usuário do localStorage e a converte para minúsculas
     const funcao = localStorage.getItem('funcaoUsuario')?.toLowerCase();

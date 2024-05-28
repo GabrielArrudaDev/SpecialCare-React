@@ -7,13 +7,13 @@ function Login() {
   const [senha, setSenha] = useState('');
   const [mensagemErro, setMensagemErro] = useState('');
   const history = useHistory();
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
   
     try {
       // Verificar no banco de dados
-      const response = await fetch('http://localhost:8080/api/usuarios');
+      const response = await fetch('https://specialcare-banco.onrender.com/api/usuarios'); // Atualizado com a URL do Render
       const usuarios = await response.json();
       
       // Converter o nome de usuário para minúsculas

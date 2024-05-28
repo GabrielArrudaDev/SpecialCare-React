@@ -20,6 +20,8 @@ function App() {
   const [popupVisible, setPopupVisible] = useState(false);
   const history = useHistory();
 
+  const apiBaseUrl = 'https://specialcare-banco.onrender.com';  // URL base da API no Render
+
   useEffect(() => {
     const funcao = localStorage.getItem('funcaoUsuario')?.toLowerCase();
     setFuncaoUsuario(funcao);
@@ -28,7 +30,7 @@ function App() {
   useEffect(() => {
     async function fetchAlimentos() {
       try {
-        const response = await fetch('http://localhost:8080/api/alimentos');
+        const response = await fetch(`${apiBaseUrl}/api/alimentos`);
         const data = await response.json();
         setAlimentos(data);
       } catch (error) {
@@ -41,7 +43,7 @@ function App() {
   useEffect(() => {
     async function fetchPacientes() {
       try {
-        const response = await fetch('http://localhost:8080/api/pacientes');
+        const response = await fetch(`${apiBaseUrl}/api/pacientes`);
         const data = await response.json();
         setPacientes(data);
       } catch (error) {
@@ -59,7 +61,7 @@ function App() {
     try {
       setAdicionarAlimento(false);
       if (editandoId !== null) {
-        await fetch(`http://localhost:8080/api/alimentos/${editandoId}`, {
+        await fetch(`${apiBaseUrl}/api/alimentos/${editandoId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -72,7 +74,7 @@ function App() {
         setEditandoId(null);
         showPopup('Alimento editado com sucesso!');
       } else {
-        const response = await fetch('http://localhost:8080/api/alimentos', {
+        const response = await fetch(`${apiBaseUrl}/api/alimentos`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -91,7 +93,7 @@ function App() {
 
   const handleExcluirAlimento = async id => {
     try {
-      await fetch(`http://localhost:8080/api/alimentos/${id}`, {
+      await fetch(`${apiBaseUrl}/api/alimentos/${id}`, {
         method: 'DELETE',
       });
       setAlimentos(prevAlimentos => prevAlimentos.filter(alimento => alimento.id !== id));
@@ -136,7 +138,7 @@ function App() {
       body: rows,
     });
 
-    doc.save('pacientes.pdf');
+    doc.save('alimentos.pdf');
   };
 
   const showPopup = (message) => {
@@ -165,13 +167,13 @@ function App() {
             <li>Medicamentos</li>
           </Link>
           <Link to='/diario' >
-            <li>Diario</li>
+            <li>Diário</li>
           </Link>
           <Link to='/funcionarios' className={`funcionarios ${(funcaoUsuario === 'medico' || funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
-            <li>Funcionarios</li>
+            <li>Funcionários</li>
           </Link>
           <Link to='/usuarios' className={`usuarios ${(funcaoUsuario === 'medico' || funcaoUsuario === 'enfermeiro' || funcaoUsuario === 'familiar') ? 'hidden' : ''}`}>
-            <li>Usuarios</li>
+            <li>Usuários</li>
           </Link>
           <li onClick={handleLogout} className='logout'>Logout</li>
         </ul>

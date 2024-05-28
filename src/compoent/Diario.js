@@ -21,6 +21,8 @@ function Diario() {
   const [popupVisible, setPopupVisible] = useState(false);
   const history = useHistory();
 
+  const apiBaseUrl = 'https://specialcare-banco.onrender.com';
+
   useEffect(() => {
     const funcao = localStorage.getItem('funcaoUsuario')?.toLowerCase();
     setFuncaoUsuario(funcao);
@@ -29,7 +31,7 @@ function Diario() {
   useEffect(() => {
     async function fetchDiarios() {
       try {
-        const response = await fetch('http://localhost:8080/api/diario');
+        const response = await fetch(`${apiBaseUrl}/api/diario`);
         const data = await response.json();
         setDiarios(data);
       } catch (error) {
@@ -42,7 +44,7 @@ function Diario() {
   useEffect(() => {
     async function fetchPacientes() {
       try {
-        const response = await fetch('http://localhost:8080/api/pacientes');
+        const response = await fetch(`${apiBaseUrl}/api/pacientes`);
         const data = await response.json();
         setPacientes(data);
       } catch (error) {
@@ -55,7 +57,7 @@ function Diario() {
   useEffect(() => {
     async function fetchFuncionarios() {
       try {
-        const response = await fetch('http://localhost:8080/api/funcionarios');
+        const response = await fetch(`${apiBaseUrl}/api/funcionarios`);
         const data = await response.json();
         setFuncionarios(data);
       } catch (error) {
@@ -124,7 +126,7 @@ function Diario() {
       console.log('Salvando diário:', novoDiario); // Log para verificar os dados sendo enviados
       setAdicionarDiario(false);
       if (editandoId !== null) {
-        await fetch(`http://localhost:8080/api/diario/${editandoId}`, {
+        await fetch(`${apiBaseUrl}/api/diario/${editandoId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -137,7 +139,7 @@ function Diario() {
         setEditandoId(null);
       showPopup('Diário editado com sucesso!');
       } else {
-        const response = await fetch('http://localhost:8080/api/diario', {
+        const response = await fetch(`${apiBaseUrl}/api/diario`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -160,7 +162,7 @@ function Diario() {
   
   const handleExcluirDiario = async id => {
     try {
-      await fetch(`http://localhost:8080/api/diario/${id}`, {
+      await fetch(`${apiBaseUrl}/api/diario/${id}`, {
         method: 'DELETE',
       });
       setDiarios(prevDiarios => prevDiarios.filter(diario => diario.id !== id));

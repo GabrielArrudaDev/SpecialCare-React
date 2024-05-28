@@ -19,6 +19,8 @@ function App() {
   const [popupVisible, setPopupVisible] = useState(false);
   const history = useHistory();
 
+  const apiBaseUrl = 'https://specialcare-banco.onrender.com';
+
   useEffect(() => {
     const funcao = localStorage.getItem('funcaoUsuario')?.toLowerCase();
     setFuncaoUsuario(funcao);
@@ -27,7 +29,7 @@ function App() {
   useEffect(() => {
     async function fetchPacientes() {
       try {
-        const response = await fetch('http://localhost:8080/api/pacientes');
+        const response = await fetch(`${apiBaseUrl}/api/pacientes`);
         const data = await response.json();
         setPacientes(data);
       } catch (error) {
@@ -45,7 +47,7 @@ function App() {
     try {
       setAdicionarPaciente(false);
       if (editandoId !== null) {
-        await fetch(`http://localhost:8080/api/pacientes/${editandoId}`, {
+        await fetch(`${apiBaseUrl}/api/pacientes/${editandoId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -61,7 +63,7 @@ function App() {
         setEditandoId(null);
         showPopup('Paciente editado com sucesso!');
       } else {
-        const response = await fetch('http://localhost:8080/api/pacientes', {
+        const response = await fetch(`${apiBaseUrl}/api/pacientes`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -83,7 +85,7 @@ function App() {
 
   const handleExcluirPaciente = async id => {
     try {
-      await fetch(`http://localhost:8080/api/pacientes/${id}`, {
+      await fetch(`${apiBaseUrl}/api/pacientes/${id}`, {
         method: 'DELETE',
       });
       setPacientes(prevPacientes => prevPacientes.filter(paciente => paciente.id !== id));
