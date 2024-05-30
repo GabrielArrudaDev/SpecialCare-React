@@ -41,7 +41,7 @@
     border: 1px solid #ccc;
 }
 
-.form-group button {
+.form-group .button1 {
     width: 100%;
     padding: 10px;
     font-size: 16px;
@@ -52,12 +52,41 @@
     cursor: pointer;
 }
 
-.form-group button:hover {
-    background-color: #0056b3;
-}
-
 .error-message {
     color: red;
     margin-top: 10px;
     text-align: center;
+}
+
+.password-input {
+  position: relative;
+}
+
+.button{
+    margin-right: 20px;
+}
+
+.password-input button {
+  position: absolute;
+  right: 25px;
+  /* Ajuste a posição direita conforme necessário */
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px; /* Adicionado padding para o botão ficar menor */
+}
+
+.password-input button::after {
+  content: '';
+  margin-right: 20px;
+  position: absolute;
+  left: 95%;
+  transform: translate(-50%, -50%);
+  width: 25px; /* Tamanho do ícone ajustado */
+  height: 25px; /* Tamanho do ícone ajustado */
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12s2-4 9-4 9 4 9 4-2 4-9 4-9-4-9-4z"/><circle cx="12" cy="12" r="3"/></svg>');
+  background-repeat: no-repeat;
+  background-size: cover;
 }

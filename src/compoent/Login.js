@@ -6,6 +6,7 @@ function Login() {
   const [nomeUsuario, setNomeUsuario] = useState('');
   const [senha, setSenha] = useState('');
   const [mensagemErro, setMensagemErro] = useState('');
+  const [mostrarSenha, setMostrarSenha] = useState(false); // Estado para controlar a visibilidade da senha
   const history = useHistory();
   
   const handleSubmit = async (e) => {
@@ -38,12 +39,11 @@ function Login() {
       setMensagemErro('Erro ao fazer login. Por favor, tente novamente mais tarde.');
     }
   };
-  
 
   return (
     <div className="container">
       <div className="form-container">
-        <h1>Login</h1>
+        <h1>Special Care</h1>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="nomeUsuario">Nome de Usuário:</label>
@@ -57,16 +57,20 @@ function Login() {
           </div>
           <div className="form-group">
             <label htmlFor="senha">Senha:</label>
-            <input
-              type="password"
-              id="senha"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-              required
-            />
+            <div className="password-input">
+              <input
+                type={mostrarSenha ? 'text' : 'password'} // Alternar entre password e text dependendo do estado mostrarSenha
+                id="senha"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                required
+              />
+              <button type="button" onClick={() => setMostrarSenha(!mostrarSenha)}>
+              </button>
+            </div>
           </div>
           <div className="form-group">
-            <button type="submit">Entrar</button>
+            <button  className="button1" type="submit">Entrar</button>
           </div>
           {mensagemErro && <p className="error-message">{mensagemErro}</p>}
         </form>
